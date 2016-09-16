@@ -76,25 +76,60 @@ with open('Project1_data.csv', newline='') as marathonData:     # Reads the give
 for eventInstance in editedData:
     eventDate = eventInstance[1]
     eventDateList = eventDate.split("-")
-    eventYear = eventDateList[0]
 
-    if eventYear == "2016":
-        eventsOf2016.append(eventInstance)
+    if len(eventDateList) == 3:
+        eventYear = eventDateList[0]
+        eventMonth = eventDateList[1]
+        eventDay = eventDateList[2]
+        eventInstance[1] = eventMonth + "-" + eventDay
 
-    if eventYear == "2015":
-        eventsOf2015.append(eventInstance)
+        if eventYear == "2016":
+            if len(eventsOf2016) > 0:
+                previousEvent = eventsOf2016[-1]
+                if previousEvent[0] != "PARTICIPANT ID" and previousEvent[0] != eventInstance[0]:
+                    eventsOf2016.append([])
 
-    if eventYear == "2014":
-        eventsOf2014.append(eventInstance)
+            eventsOf2016.append(eventInstance)
 
-    if eventYear == "2013":
-        eventsOf2013.append(eventInstance)
+        if eventYear == "2015":
+            if len(eventsOf2015) > 0:
+                previousEvent = eventsOf2015[-1]
+                if previousEvent[0] != "PARTICIPANT ID" and previousEvent[0] != eventInstance[0]:
+                    eventsOf2015.append([])
 
-    if eventYear == "2012":
-        eventsOf2012.append(eventInstance)
+            eventsOf2015.append(eventInstance)
 
-    newEvent = [eventInstance[2], eventInstance[3]]
-    allEvents.append(newEvent)
+        if eventYear == "2014":
+            if len(eventsOf2014) > 0:
+                previousEvent = eventsOf2014[-1]
+                if previousEvent[0] != "PARTICIPANT ID" and previousEvent[0] != eventInstance[0]:
+                    eventsOf2014.append([])
+
+            eventsOf2014.append(eventInstance)
+
+        if eventYear == "2013":
+            if len(eventsOf2013) > 0:
+                previousEvent = eventsOf2013[-1]
+                if previousEvent[0] != "PARTICIPANT ID" and previousEvent[0] != eventInstance[0]:
+                    eventsOf2013.append([])
+
+            eventsOf2013.append(eventInstance)
+
+        if eventYear == "2012":
+            if len(eventsOf2012) > 0:
+                previousEvent = eventsOf2012[-1]
+                if previousEvent[0] != "PARTICIPANT ID" and previousEvent[0] != eventInstance[0]:
+                    eventsOf2012.append([])
+
+            eventsOf2012.append(eventInstance)
+
+        newEvent = [eventInstance[2], eventInstance[3]]
+        allEvents.append(newEvent)
+    else:
+        # print (eventDateList[0])
+        if eventDateList[0] != "EVENT DATE":
+            print ("This Event has a different Address Format: ", eventInstance)
+            sys.exit(0)
 
 for event in allEvents:
     if not event in uniqueEventsWithTypes:
@@ -115,7 +150,7 @@ for event in allUniqueEventsAlone:
 
     if not event in distinctEventsAlone:
         distinctEventsAlone.append(event)
-        print(event)
+        # print(event)
 
 
 writeToCSV("ArrangedByID/editedDataByID", editedData)
