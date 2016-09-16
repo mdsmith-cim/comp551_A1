@@ -81,7 +81,7 @@ for eventInstance in editedData:
         eventYear = eventDateList[0]
         eventMonth = eventDateList[1]
         eventDay = eventDateList[2]
-        eventInstance[1] = eventMonth + "-" + eventDay
+        #eventInstance[1] = eventMonth + "-" + eventDay
 
         if eventYear == "2016":
             if len(eventsOf2016) > 0:
