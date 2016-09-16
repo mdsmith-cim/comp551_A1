@@ -1,6 +1,6 @@
 import sys
 import csv
-import xlwt
+import re
 
 editedData = []
 headerRecord = []
@@ -9,7 +9,11 @@ eventsOf2013 = []
 eventsOf2014 = []
 eventsOf2015 = []
 eventsOf2016 = []
+allEvents = []
+uniqueEventsWithTypes = []
+
 firstRow = 1
+
 
 def writeToCSV (csvFileName, dataList):
     csvFileNameWithExtension = csvFileName + '.csv'
@@ -89,9 +93,38 @@ for eventInstance in editedData:
     if eventYear == "2012":
         eventsOf2012.append(eventInstance)
 
-writeToCSV("editedDataByID", editedData)
-writeToCSV("editedDataFor2016", eventsOf2016)
-writeToCSV("editedDataFor2015", eventsOf2015)
-writeToCSV("editedDataFor2014", eventsOf2014)
-writeToCSV("editedDataFor2013", eventsOf2013)
-writeToCSV("editedDataFor2012", eventsOf2012)
+    newEvent = [eventInstance[2], eventInstance[3]]
+    allEvents.append(newEvent)
+
+for event in allEvents:
+    if not event in uniqueEventsWithTypes:
+        uniqueEventsWithTypes.append(event)
+
+del uniqueEventsWithTypes[0]
+uniqueEventsWithTypes.sort()
+
+allUniqueEventsAlone = []
+distinctEventsAlone = []
+
+for eventWithType in uniqueEventsWithTypes:
+    allUniqueEventsAlone.append([eventWithType[0]])
+
+for event in allUniqueEventsAlone:
+    event[0] = event[0].upper()
+    event[0] = event[0].replace(" ", "")
+
+    if not event in distinctEventsAlone:
+        distinctEventsAlone.append(event)
+        print(event)
+
+
+writeToCSV("ArrangedByID/editedDataByID", editedData)
+writeToCSV("ArrangedByYear/editedDataFor2016", eventsOf2016)
+writeToCSV("ArrangedByYear/editedDataFor2015", eventsOf2015)
+writeToCSV("ArrangedByYear/editedDataFor2014", eventsOf2014)
+writeToCSV("ArrangedByYear/editedDataFor2013", eventsOf2013)
+writeToCSV("ArrangedByYear/editedDataFor2012", eventsOf2012)
+writeToCSV("uniqueEventsWithTypes", uniqueEventsWithTypes)
+writeToCSV("uniqueEventsOnly", distinctEventsAlone)
+
+
