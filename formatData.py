@@ -1,6 +1,6 @@
 import sys
 import csv
-import re
+import itertools
 
 editedData = []
 headerRecord = []
@@ -13,8 +13,6 @@ allEvents = []
 uniqueEventsWithTypes = []
 
 firstRow = 1
-
-
 def writeToCSV (csvFileName, dataList):
     csvFileNameWithExtension = csvFileName + '.csv'
     with open(csvFileNameWithExtension, 'w', newline='') as fp:
@@ -123,7 +121,7 @@ for eventInstance in editedData:
 
             eventsOf2012.append(eventInstance)
 
-        newEvent = [eventInstance[2], eventInstance[3]]
+        newEvent = [eventInstance[1], eventInstance[2], eventInstance[3]]
         allEvents.append(newEvent)
     else:
         # print (eventDateList[0])
@@ -131,26 +129,153 @@ for eventInstance in editedData:
             print ("This Event has a different Address Format: ", eventInstance)
             sys.exit(0)
 
+eventIDCount = 0
 for event in allEvents:
     if not event in uniqueEventsWithTypes:
         uniqueEventsWithTypes.append(event)
 
 del uniqueEventsWithTypes[0]
-uniqueEventsWithTypes.sort()
+uniqueEventsWithTypes.sort(key=lambda elem: (elem[0], elem[1]))
 
 allUniqueEventsAlone = []
-distinctEventsAlone = []
+distinctEventsWithDate = []
 
 for eventWithType in uniqueEventsWithTypes:
-    allUniqueEventsAlone.append([eventWithType[0]])
+    allUniqueEventsAlone.append([eventWithType[0], eventWithType[1]])
 
 for event in allUniqueEventsAlone:
     event[0] = event[0].upper()
     event[0] = event[0].replace(" ", "")
 
-    if not event in distinctEventsAlone:
-        distinctEventsAlone.append(event)
-        # print(event)
+    if not event in distinctEventsWithDate:
+        distinctEventsWithDate.append(event)
+
+distinctEventsWithDate.sort(key=lambda elem: (elem[0], elem[1]))
+
+for count in range(0, len(distinctEventsWithDate)):
+    distinctEventsWithDate[count][1] = distinctEventsWithDate[count][1].upper()
+
+ # Without Date List
+distinctEventWithoutDate = []
+for distinctEvent in distinctEventsWithDate:
+    if [distinctEvent[1]] not in distinctEventWithoutDate:
+        distinctEventWithoutDate.append([distinctEvent[1]])
+
+distinctEventWithoutDate.sort()
+
+count = 0
+eventListEventID = []
+previousEvent = []
+for distinctDateEventPair in distinctEventsWithDate:
+    countLen = len(str(count))
+    appendingZeroes = 5 - countLen
+    # eventId = distinctDateEventPair[0].replace("-", "") + str(str(0) * appendingZeroes) + str(count)
+    # count = count + 1
+
+    if len(previousEvent) > 0 and (previousEvent[1] == 'MARATHON OASIS DE MONTREAL' or previousEvent[1] == "MARATHON OASIS ROCK 'N' ROLL DE MONTREAL"):
+        eventId = previousEvent[2]
+        # ['2013-09-22', 'MARATHON OASIS DE MONTREAL']
+        # ['2013-09-22', 'MARATHONOASISDEMONTREAL']
+        # ['2012-09-23', 'MARATHON OASIS DE MONTREAL']
+        # ['2012-09-23', 'MARATHONOASISDEMONTREAL']
+        # ['2015-09-20', "MARATHON OASIS ROCK 'N' ROLL DE MONTREAL"]
+        # ['2015-09-20', "MARATHONOASISROCK'N'ROLLDEMONTREAL"]
+    else:
+        eventId = distinctDateEventPair[0].replace("-", "") + str(str(0) * appendingZeroes) + str(count)
+        count = count + 1
+
+    newEvent_IDPair = []
+    newEvent_IDPair.append(distinctDateEventPair[0])
+    newEvent_IDPair.append(distinctDateEventPair[1])
+    newEvent_IDPair.append(eventId)
+
+    eventListEventID.append(newEvent_IDPair)
+    previousEvent = newEvent_IDPair
+    # print (newEvent_IDPair)
+
+allTypesOfTheRaces = []
+for type in uniqueEventsWithTypes:
+    if type[2].upper().replace(" ", "") not in allTypesOfTheRaces:
+        allTypesOfTheRaces.append([type[2].upper().replace(" ", "")])
+
+allTypesOfTheRaces.sort()
+
+uniqueTypesOfTheRaces = []
+for raceType in allTypesOfTheRaces:
+    if raceType not in uniqueTypesOfTheRaces:
+        uniqueTypesOfTheRaces.append(raceType)
+
+def representsAnInt(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+raceTypeInKiloMeters = []
+for uniqueType in uniqueTypesOfTheRaces:
+    newTypeWithKilometers = []
+    newTypeWithKilometers.append(uniqueType[0])
+
+    if '1/2' in uniqueType[0]:
+        newTypeWithKilometers.append(20)
+    else:
+        splitRaceType = ["".join(x) for _, x in itertools.groupby(uniqueType[0], key=str.isdigit)]
+        # newList = (x for x in splitRaceType if isinstance(int(x), numbers.Number))
+        # splitRaceType.sort()
+
+        numberEntryOnly = []
+        for entry in splitRaceType:
+            if representsAnInt(entry):
+                numberEntryOnly.append(int(entry))
+
+        if len(numberEntryOnly) > 0:
+            # print (numberEntryOnly)
+            if numberEntryOnly[0] >= 40:
+                newTypeWithKilometers.append(40)
+            elif numberEntryOnly[0] >= 20:
+                newTypeWithKilometers.append(20)
+            elif numberEntryOnly[0] >= 10:
+                newTypeWithKilometers.append(10)
+            elif numberEntryOnly[0] >= 2.5:
+                newTypeWithKilometers.append(5)
+            else:
+                newTypeWithKilometers.append(1)
+        else:
+            newTypeWithKilometers.append(40)
+            # if ('MARATHON' in splitRaceType[0]) or ('TRI' in splitRaceType[0]) or ('ATHLON' in splitRaceType[0]) or \
+            #         ('LONG' in splitRaceType[0]) or ('SPRINT' in splitRaceType[0]) or ('CHALLENGE' in splitRaceType[0]):
+            #     newTypeWithKilometers.append(40)
+            # else:
+            #     print ("ERRORRRRR")
+            #     print (splitRaceType)
+            #     sys.exit(0)
+
+    # print(newTypeWithKilometers)
+    raceTypeInKiloMeters.append(newTypeWithKilometers)
+
+allRaceCategories = []
+
+itercars = iter(editedData)
+next(itercars)
+
+for instance in itercars:
+    allRaceCategories.append([instance[5]])
+    # print (instance[5])
+
+allRaceCategories.sort()
+
+uniqueRaceCategories = []
+
+for category in allRaceCategories:
+    if not category in uniqueRaceCategories:
+        uniqueRaceCategories.append(category)
+        # print(category)
+
+for category in uniqueRaceCategories:
+    splitCategory = ["".join(x) for _, x in itertools.groupby(category[0], key=str.isdigit)]
+    print (splitCategory)
+
 
 
 writeToCSV("ArrangedByID/editedDataByID", editedData)
@@ -159,7 +284,13 @@ writeToCSV("ArrangedByYear/editedDataFor2015", eventsOf2015)
 writeToCSV("ArrangedByYear/editedDataFor2014", eventsOf2014)
 writeToCSV("ArrangedByYear/editedDataFor2013", eventsOf2013)
 writeToCSV("ArrangedByYear/editedDataFor2012", eventsOf2012)
-writeToCSV("uniqueEventsWithTypes", uniqueEventsWithTypes)
-writeToCSV("uniqueEventsOnly", distinctEventsAlone)
+writeToCSV("RaceTypes/uniqueEventsWithTypes", uniqueEventsWithTypes)
+writeToCSV("RaceTypes/uniqueEventsOnlyWithDate", distinctEventsWithDate)
+writeToCSV("RaceTypes/uniqueEventsOnly", distinctEventWithoutDate)
+writeToCSV("RaceTypes/uniqueEventsWithID", eventListEventID)
+writeToCSV("RaceTypes/typesOfRaces", uniqueTypesOfTheRaces)
+writeToCSV("RaceTypes/typesOfRacesWithDistance", raceTypeInKiloMeters)
+writeToCSV("RaceTypes/allCatergories", allRaceCategories)
+writeToCSV("RaceTypes/uniqueCatergories", uniqueRaceCategories)
 
 
