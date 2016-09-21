@@ -1,4 +1,5 @@
 import numpy as np
+import progressbar
 
 class lg:
     def __init__(self, X, y, error_threshold = 1e-4, alpha=0.1, max_iterations = 10000):
@@ -25,6 +26,10 @@ class lg:
         old_likelihood = self.log_likelihood()
         iteration = 0
 
+        print("Fitting with alpha = {}, error threshold = {} and {} maximum # of iterations".format(self.alpha, self.error_threshold, self.max_iterations))
+
+        bar = progressbar.ProgressBar(max_value=self.max_iterations)
+
         while diff > self.error_threshold and iteration < self.max_iterations:
             # Sum takes care of the fact that we are doing all X_i at once; reshape ensures correct output shape
             self.w = self.w + self.alpha * ((self.y - self.sigmoid(self.X.dot(self.w))) * self.X).sum(0).reshape(self.w.shape)
@@ -33,6 +38,12 @@ class lg:
             diff = np.abs(cur_likelihood - old_likelihood)
             old_likelihood = cur_likelihood
             iteration += 1
+            bar.update(iteration)
+
+        bar.finish()
+
+        # Clean up terminal from progress bar
+        print("")
 
         print("Took %i iterations, difference = " % iteration, diff)
 
