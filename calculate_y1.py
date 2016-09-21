@@ -5,6 +5,8 @@ import log_reg
 
 # TODO: Add cross validation
 
+# TODO: provide test against sk-learn
+
 data = np.genfromtxt('toy.csv', delimiter=',')
 
 X_train = data[:70, :2]
