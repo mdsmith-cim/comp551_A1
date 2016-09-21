@@ -74,13 +74,25 @@ for entry in montrealMarathon:
             montrealMarathonParticipants[-1][1].extend([year])
             montrealMarathonParticipants[-1][4].extend([entry[4]])
             noOfYears = len(montrealMarathonParticipants[-1][1])
-            averageTime = getAverageTime(montrealMarathonParticipants[-1][4], noOfYears)
-            montrealMarathonParticipants[-1][7] = averageTime
+
+            # print(entry[0] + " ---- " + str(montrealMarathonParticipants[-1][4]))
+            if '-1' in montrealMarathonParticipants[-1][4]:
+                notFinishedTimes = montrealMarathonParticipants[-1][4].count('-1')
+                noOfYears = noOfYears - notFinishedTimes
+                # print(entry[0] + " ---- " + str(notFinishedTimes))
+
+            if noOfYears > 0:
+                averageTime = getAverageTime(montrealMarathonParticipants[-1][4], noOfYears)
+                montrealMarathonParticipants[-1][7] = averageTime
     else:
         newEntry = []
         newEntry.extend(entry)
         newEntry.extend("1")            # Count of how mant Marathons
-        newEntry.extend([entry[4]])            # Average Time
+
+        if not entry[4] == '-1':
+            newEntry.extend([entry[4]])            # Average Time
+        else:
+            newEntry.extend(['-1'])
 
         date = newEntry[1]
         year = date.split("-")[0]
@@ -101,7 +113,7 @@ for entry in range (0, len(montrealMarathonParticipants)):
     #         totalCountOfRaces = totalCountOfRaces + 1
     #
     montrealMarathonParticipants[entry].append(len(totalCountOfRaces))
-    print(montrealMarathonParticipants[entry])
+    # print(montrealMarathonParticipants[entry])
 
 
 writeToCSV("MontrealMarathon/montrealMarathon", montrealMarathon)
