@@ -106,16 +106,3 @@ for entry in range (0, len(montrealMarathonParticipants)):
 
 writeToCSV("MontrealMarathon/montrealMarathon", montrealMarathon)
 writeToCSV("MontrealMarathon/montrealMarathonWithCountPerParticipant", montrealMarathonParticipants)
-
-
-
-
-
-# with open('RaceTypes/uniqueEventsWithID.csv', newline='') as marathonData:     # Reads the given csv
-#     csvReader = csv.reader(marathonData)
-#
-#     for event in csvReader:
-#         eventName = event[1].upper().replace(" ", "")
-#
-#         if 'MONTREAL' in eventName and 'OASIS' in eventName:
-#             print (eventName)
