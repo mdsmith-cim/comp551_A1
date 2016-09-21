@@ -11,10 +11,10 @@ def writeToCSV(csvFileName, dataList):
         csvWriter.writerows(dataList)
 
 
-with open('RaceTypes/typesOfRacesWithDistance.csv', newline='') as marathonData:  # Reads the given csv
-    csvReader = csv.reader(marathonData)
-    for raceType in csvReader:
-        raceTypes.append(raceType)
+# with open('RaceTypes/typesOfRacesWithDistance.csv', newline='') as marathonData:  # Reads the given csv
+#     csvReader = csv.reader(marathonData)
+#     for raceType in csvReader:
+#         raceTypes.append(raceType)
 
 with open('MontrealMarathon/montrealMarathonWithCountPerParticipant.csv',
           newline='') as marathonData:  # Reads the given csv
@@ -22,11 +22,11 @@ with open('MontrealMarathon/montrealMarathonWithCountPerParticipant.csv',
     for participant in csvReader:
         montrealParticipants.append(participant)
 
-for player in range(0, len(montrealParticipants)):
-    raceType = montrealParticipants[player][3].upper().replace(" ", "")
-
-    raceEventDetail = [raceEvent for raceEvent in raceTypes if raceEvent[0] == raceType]
-    montrealParticipants[player][3] = raceEventDetail[0][1]
+# for player in range(0, len(montrealParticipants)):
+#     raceType = montrealParticipants[player][3].upper().replace(" ", "")
+#
+#     raceEventDetail = [raceEvent for raceEvent in raceTypes if raceEvent[0] == raceType]
+#     montrealParticipants[player][3] = raceEventDetail[0][1]
 
 montrealRacerCategories = []
 
@@ -92,7 +92,7 @@ for player in range(0, len(montrealParticipants)):
 # 1 - Years he participated in MontrealMarathon
 # 2 - EventName (MontrealMarathon)
 # 3 - EventType (Distance)
-# 4 - Times of Previous Years
+# 4 - FinishTimes of Previous Years
 # 5 - Category
 # 6 - Number of times participated in Marathon
 # 7 - Average Finishtime
