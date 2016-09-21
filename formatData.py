@@ -231,18 +231,22 @@ for uniqueType in uniqueTypesOfTheRaces:
 
         if len(numberEntryOnly) > 0:
             # print (numberEntryOnly)
-            if numberEntryOnly[0] >= 40:
+            if numberEntryOnly[0] >= 35:
                 newTypeWithKilometers.append(40)
-            elif numberEntryOnly[0] >= 20:
+            elif numberEntryOnly[0] >= 15:
                 newTypeWithKilometers.append(20)
-            elif numberEntryOnly[0] >= 10:
+            elif numberEntryOnly[0] >= 7.5:
                 newTypeWithKilometers.append(10)
             elif numberEntryOnly[0] >= 2.5:
                 newTypeWithKilometers.append(5)
             else:
                 newTypeWithKilometers.append(1)
         else:
-            newTypeWithKilometers.append(40)
+            if ('MARATHON' in splitRaceType[0]) and (('HALF' in splitRaceType[0]) or ('DEMI' in splitRaceType[0])):
+                newTypeWithKilometers.append(20)
+            else:
+                newTypeWithKilometers.append(40)
+
             # if ('MARATHON' in splitRaceType[0]) or ('TRI' in splitRaceType[0]) or ('ATHLON' in splitRaceType[0]) or \
             #         ('LONG' in splitRaceType[0]) or ('SPRINT' in splitRaceType[0]) or ('CHALLENGE' in splitRaceType[0]):
             #     newTypeWithKilometers.append(40)
