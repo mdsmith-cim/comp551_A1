@@ -169,3 +169,4 @@ for entry in montrealMarathonParticipants:
 
 writeToCSV("MontrealMarathon/montrealMarathon", montrealMarathon)
 writeToCSV("MontrealMarathon/montrealMarathonWithCountPerParticipant", montrealMarathonParticipants)
+# writeToCSV("MontrealMarathon/NoTimeMultiplication/montrealMarathonWithCountPerParticipant_NoMul", montrealMarathonParticipants)

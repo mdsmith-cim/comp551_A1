@@ -59,17 +59,6 @@ def getAverageTime(listOfTimes, listOfDistances, count):
     averageTime = str(avgHours) + ":" + str(avgMinutes) + ":" + str(int(avgSeconds))
     return averageTime
 
-# with open('RaceTypes/typesOfRacesWithDistance.csv', newline='') as marathonData:  # Reads the given csv
-#     csvReader = csv.reader(marathonData)
-#     for raceType in csvReader:
-#         raceTypes.append(raceType)
-
-# for player in range(0, len(montrealParticipants)):
-#     raceType = montrealParticipants[player][3].upper().replace(" ", "")
-#
-#     raceEventDetail = [raceEvent for raceEvent in raceTypes if raceEvent[0] == raceType]
-#     montrealParticipants[player][3] = raceEventDetail[0][1]
-
 with open('ArrangedByID/editedDataByID.csv',
           newline='') as marathonData:  # Reads the given csv
     csvReader = csv.reader(marathonData)
@@ -254,6 +243,9 @@ writeToCSV("MontrealMarathon/montrealMarathonFinalDataWithout2015", updatedParti
 writeToCSV("MontrealMarathon/montrealMarathonFinal2015OnlyData", only2015Participants)
 writeToCSV("MontrealMarathon/montrealRacerCategories", montrealRacerCategories)
 
+# writeToCSV("MontrealMarathon/NoTimeMultiplication/montrealMarathonFinalData_NoMult", montrealParticipants)
+# writeToCSV("MontrealMarathon/NoTimeMultiplication/montrealMarathonFinalDataWithout2015_NoMult", updatedParticipantsWithout2015)
+# writeToCSV("MontrealMarathon/NoTimeMultiplication/montrealMarathonFinal2015OnlyData_NoMult", only2015Participants)
 
 # ['768', "['2015']", "MARATHONOASISROCK'N'ROLLDEMONTREAL", '40', "['-1']", '', '1', '-1', '1']
 
