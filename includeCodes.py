@@ -1,4 +1,6 @@
 import csv
+import itertools
+import re
 
 allRunnersEver = []
 montrealParticipants = []
@@ -19,6 +21,43 @@ def printPlayerOtherInfo(playerId, entireList):
         for entry in listOfPreviousEvents:
             print (entry)
         print ("==========================================")
+
+def getAverageTime(listOfTimes, listOfDistances, count):
+    allSecondsAdded = 0
+    secondsItem = []
+
+    for item in range(0, len(listOfTimes)):
+        distanceRan = int(listOfDistances[item])
+        distanceMultiple = 40 / distanceRan
+
+        if not distanceMultiple == 1:
+            distanceMultiple = distanceMultiple * 1.15
+
+        # print (listOfTimes[item])
+        if not '-1' in listOfTimes[item]:
+            dataSplit = listOfTimes[item].split(":")
+            hours = int(dataSplit[0])
+            minutes = int(dataSplit[1])
+            seconds = int(dataSplit[2])
+
+            convertedToSeconds = ((hours * 60 * 60) + (minutes * 60) + (seconds)) * distanceMultiple
+            secondsItem.append(convertedToSeconds)
+        else:
+            secondsItem.append(-1)
+
+    for currentTime in secondsItem:
+        if not '-1' in str(currentTime):
+            allSecondsAdded = allSecondsAdded + currentTime
+
+    averageSeconds = (allSecondsAdded / count)
+
+    avgHours = int(averageSeconds / (60 * 60))
+    averageSeconds = averageSeconds % (60 * 60)
+    avgMinutes = int(averageSeconds / 60)
+    avgSeconds = averageSeconds % 60
+
+    averageTime = str(avgHours) + ":" + str(avgMinutes) + ":" + str(int(avgSeconds))
+    return averageTime
 
 # with open('RaceTypes/typesOfRacesWithDistance.csv', newline='') as marathonData:  # Reads the given csv
 #     csvReader = csv.reader(marathonData)
@@ -43,7 +82,6 @@ with open('MontrealMarathon/montrealMarathonWithCountPerParticipant.csv',
     csvReader = csv.reader(marathonData)
     for participant in csvReader:
         montrealParticipants.append(participant)
-
 
 montrealRacerCategories = []
 
@@ -165,7 +203,55 @@ for player in range(0, len(montrealParticipants)):
             print("Some other guy/girl %s with [%s]" % \
                   (montrealParticipants[player][0], montrealParticipants[player][4]))
 
+updatedParticipantsWithout2015 = []
+only2015Participants = []
+
+# for entry in montrealParticipants:
+#     updatedParticipantsWithout2015.append(entry)
+
+for index in range(0, len(montrealParticipants)):
+    currentEntry = montrealParticipants[index][:]
+    entryFor2015 = currentEntry[:]
+    yearList = re.sub("[\[\]' ]", "", currentEntry[1]).split(",")
+    distanceList = re.sub("[\[\]' ]", "", currentEntry[2]).split(",")
+    timeList = re.sub("[\[\]' ]", "", currentEntry[3]).split(",")
+
+    totalMontrealMarathons = currentEntry[5]
+    totalRaces = currentEntry[7]
+
+    if '2015' in yearList:
+        if len(yearList) > 1:
+            entryFor2015[1] = [yearList[0]]
+            entryFor2015[2] = [distanceList[0]]
+            entryFor2015[3] = [timeList[0]]
+
+            del (yearList[0])
+            del (distanceList[0])
+            del (timeList[0])
+
+            averageTime = getAverageTime(timeList, distanceList, len(yearList))
+
+            currentEntry[1] = yearList
+            currentEntry[2] = distanceList
+            currentEntry[3] = timeList
+            currentEntry[5] = int(totalMontrealMarathons) - 1
+            currentEntry[6] = averageTime
+            currentEntry[7] = int(totalRaces) - 1
+            updatedParticipantsWithout2015.append(currentEntry)
+
+            entryFor2015[6] = averageTime             #  Average time from previous Races
+            only2015Participants.append(entryFor2015)
+        else:
+            # omits this entry of 2015
+            only2015Participants.append(currentEntry)
+            pass
+    else:
+        updatedParticipantsWithout2015.append(currentEntry)
+
+
 writeToCSV("MontrealMarathon/montrealMarathonFinalData", montrealParticipants)
+writeToCSV("MontrealMarathon/montrealMarathonFinalDataWithout2015", updatedParticipantsWithout2015)
+writeToCSV("MontrealMarathon/montrealMarathonFinal2015OnlyData", only2015Participants)
 writeToCSV("MontrealMarathon/montrealRacerCategories", montrealRacerCategories)
 
 

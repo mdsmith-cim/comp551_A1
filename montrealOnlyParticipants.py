@@ -20,6 +20,9 @@ def getAverageTime(listOfTimes, listOfDistances, count):
         distanceRan = int(listOfDistances[item])
         distanceMultiple = 40 / distanceRan
 
+        if not distanceMultiple == 1:
+            distanceMultiple = distanceMultiple * 1.15
+
         # print (listOfTimes[item])
         if not '-1' in listOfTimes[item]:
             dataSplit = listOfTimes[item].split(":")
@@ -36,7 +39,7 @@ def getAverageTime(listOfTimes, listOfDistances, count):
         if not '-1' in str(currentTime):
             allSecondsAdded = allSecondsAdded + currentTime
 
-    averageSeconds = (allSecondsAdded / count) * 1.05
+    averageSeconds = (allSecondsAdded / count)
 
     avgHours = int(averageSeconds / (60 * 60))
     averageSeconds = averageSeconds % (60 * 60)
