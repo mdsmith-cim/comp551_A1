@@ -7,19 +7,18 @@ class naive_bayes:
 
     def __init__(self,X, y):
 
-        # Define X : add ones column
-        # self.X = np.insert(X, 0, 1, 1)
         self.X = X
 
         # Make sure y has correct shape
-        self.y = y.reshape((y.shape[0], -1)).astype(np.int32)
+        self.y = y.reshape(-1).astype(np.int32)
 
-        if (self.X.shape[0] != self.y.shape[0]):
+        if self.X.shape[0] != self.y.shape[0]:
             raise Exception('Number of rows in X and y should be the same')
 
+    # Fits the data
     def fit(self):
 
-        # Separate into each class: attend or not
+        # Separate into each class: ex. 1 or 0
         uniq = np.unique(self.y)
 
         # Calculate mean / std. dev of each feature per class (attend/not attend as an example
@@ -27,8 +26,6 @@ class naive_bayes:
         for i in uniq:
             # Get all related features
             features = self.X[self.y == i]
-            print("Features shape")
-            print(features.shape)
             ft_data = []
             # Iterate over each feature (column)
             for j in range(0, features.shape[1]):
@@ -37,6 +34,7 @@ class naive_bayes:
 
             self.param[i] = ft_data
 
+    # Predicts results for given X
     def predict(self, X):
 
         y = []
@@ -49,8 +47,8 @@ class naive_bayes:
             best_prob = -99
 
             # Test each potential class (usually 2)
-            for cl, dt in self.param:
-
+            for cl in self.param.keys():
+                dt = self.param[cl]
                 num_feat = len(dt)
 
                 gaussian = 1
@@ -58,12 +56,17 @@ class naive_bayes:
                     # Create gaussian
                     gaussian *= st.norm.pdf(row[k], dt[k][0], dt[k][1])
 
-                if (gaussian > best_prob):
+                if gaussian > best_prob:
                     best_prob = gaussian
                     best_class = cl
 
-            y[i] = best_class
+            y.insert(i, best_class)
 
 
-        return y.reshape((-1,1))
+        return np.asarray(y)
 
+    # Returns classifcation accuracy for given X and y
+    def score(self,X,y):
+        pred = self.predict(X)
+
+        return np.count_nonzero(pred.astype(np.int32) == y.astype(np.int32).reshape(-1))/y.size
