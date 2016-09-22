@@ -18,6 +18,9 @@ class lg:
 
         self.max_iterations = max_iterations
 
+        if (self.X.shape[0] != self.y.shape[0]):
+            raise Exception('Number of rows in X and y should be the same')
+
 
     def fit(self):
 
