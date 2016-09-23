@@ -262,10 +262,10 @@ for runner in idSplitIntoRowsData:
 
 #
 writeToCSV("FinalDataSets/DataSetOn23rd/Y1TrainSet", Y1TrainingSet)
-# writeToCSV("FinalDataSets/DataSetOn23rd/Y1TestSet", Y1TestSet)
+writeToCSV("FinalDataSets/DataSetOn23rd/Y1TestSet", Y1TestSet)
 writeToCSV("FinalDataSets/DataSetOn23rd/Y2TrainingSet", Y2TrainingSet)
-# writeToCSV("FinalDataSets/DataSetOn23rd/Y2TestSet", Y2TestSet)
-# writeToCSV("FinalDataSets/IdsNotListed", nonExistantPlayers)
+writeToCSV("FinalDataSets/DataSetOn23rd/Y2TestSet", Y2TestSet)
+writeToCSV("FinalDataSets/IdsNotListed", nonExistantPlayers)
 
 # 0 - PlayerID
 # 1 - Montreal Marathon Years
