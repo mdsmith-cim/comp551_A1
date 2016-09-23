@@ -37,6 +37,8 @@ class lg:
 
         bar = progressbar.ProgressBar(max_value=self.max_iterations)
 
+        diff_list = []
+
         while diff > self.error_threshold and iteration < self.max_iterations:
             # Sum takes care of the fact that we are doing all X_i at once; reshape ensures correct output shape
             # This is the main gradient descent update function
@@ -45,6 +47,7 @@ class lg:
             # Get difference in likelihoods -> compare against threshold
             cur_likelihood = self.log_likelihood()
             diff = np.abs(cur_likelihood - old_likelihood)
+            diff_list.append(diff)
             old_likelihood = cur_likelihood
             iteration += 1
             bar.update(iteration)
@@ -55,6 +58,8 @@ class lg:
         print("")
 
         print("Took %i iterations, difference = " % iteration, diff)
+
+        return diff_list
 
     # Simple (slow) sigmoid function
     def sigmoid(self, x):
