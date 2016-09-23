@@ -16,10 +16,12 @@ class lg:
 
         self.error_threshold = error_threshold
 
+        # Learning rate
         self.alpha = alpha
 
         self.max_iterations = max_iterations
 
+        # Sanity check
         if self.X.shape[0] != self.y.shape[0]:
             raise Exception('Number of rows in X and y should be the same')
 
@@ -40,7 +42,7 @@ class lg:
             # This is the main gradient descent update function
             self.w = self.w + self.alpha * ((self.y - self.sigmoid(self.X.dot(self.w))) * self.X).sum(0).reshape(self.w.shape)
 
-            # Get difference in likelihoods -> compare against treshold
+            # Get difference in likelihoods -> compare against threshold
             cur_likelihood = self.log_likelihood()
             diff = np.abs(cur_likelihood - old_likelihood)
             old_likelihood = cur_likelihood
@@ -54,9 +56,8 @@ class lg:
 
         print("Took %i iterations, difference = " % iteration, diff)
 
-
+    # Simple (slow) sigmoid function
     def sigmoid(self, x):
-        # Simple (slow) sigmoid function
         return 1/(1 + np.exp(-x))
 
     # Returns log likelihood of data
@@ -70,14 +71,14 @@ class lg:
 
     # Returns a prediction for given X values
     def predict(self, X):
-
+        # Add intercept
         X2 = np.insert(X, 0, 1, 1)
         prod = self.sigmoid(X2.dot(self.w))
         prod[prod < 0.5] = 0
         prod[prod >= 0.5] = 1
         return prod
 
-    # Predicts and calculates the accuracy of prediction
+    # Calculates the accuracy of prediction
     def score(self, X, y):
 
         pred = self.predict(X).astype(np.int32)

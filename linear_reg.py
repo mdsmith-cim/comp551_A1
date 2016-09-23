@@ -4,6 +4,7 @@ class linearReg:
 
     def __init__(self, X, y):
 
+        # Add intercept to data
         self.X = np.insert(X, 0, 1,1)
 
         self.y = y.reshape((-1,1))

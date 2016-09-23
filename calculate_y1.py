@@ -11,6 +11,9 @@ wine = pd.read_csv("wine.csv")
 y = (wine.Type=='Red').values.reshape((-1,1))
 X = wine.loc[:,wine.columns[0:11]].values
 
+
+## Cross validate
+
 ## Split train/test
 X_train, X_test, y_train, y_test = sp.split(np.concatenate((X,y),axis=1))
 
