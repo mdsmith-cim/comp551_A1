@@ -62,8 +62,13 @@ def getMeanForAgeGroup(runner):
         ageGroupAverageTill2014.append(newAgeGroupTime)
     return ageGroupAverage
 
+# ======================================================
+#             YITrainingInfo
+# ======================================================
 for runner in allTheInfo:
     newY1Info = []
+    newY2Info = []
+
     didTheyAttend = -1
 
     playerId = runner[0]
@@ -86,18 +91,34 @@ for runner in allTheInfo:
     if averageRuntimeInMarathons == -1:
         averageRuntimeInMarathons = getMeanForAgeGroup(runner)
 
+    finish_2015Time = 0
+    if '2015' in runner[1]:
+        finish_2015Time = int(re.sub("[\[\] ]", "", runner[3]).split(",")[0])
+        # print(finish_2015Time)
+
     newY1Info.append(playerId)
     newY1Info.append(noOfMontrealMarathons)
     newY1Info.append(noOfAllRaces)
-    newY1Info.append(averageRuntimeInMarathons)
+    # newY1Info.append(averageRuntimeInMarathons)
     newY1Info.append(category)
     newY1Info.append(didTheyAttend)
 
+    newY2Info.append(playerId)
+    newY2Info.append(averageRuntimeInMarathons)
+    newY2Info.append(noOfAllRaces)
+    newY2Info.append(category)
+    newY2Info.append(finish_2015Time)
+
     Y1TrainingSet.append(newY1Info)
+    if not newY2Info[4] == 0 and not newY2Info[4] == -1:
+        Y2TrainingSet.append(newY2Info)
 
-
+# ======================================================
+#             YITestInfo
+# ======================================================
 for runner in allTheInfo:
     newY1Info = []
+    newY2Info = []
 
     playerId = runner[0]
     noOfMontrealMarathons = int(runner[4])
@@ -111,11 +132,17 @@ for runner in allTheInfo:
     newY1Info.append(playerId)
     newY1Info.append(noOfMontrealMarathons)
     newY1Info.append(noOfAllRaces)
-    newY1Info.append(averageRuntimeInMarathons)
+    # newY1Info.append(averageRuntimeInMarathons)
     newY1Info.append(category)
 
+    newY2Info.append(playerId)
+    newY2Info.append(averageRuntimeInMarathons)
+    newY2Info.append(noOfAllRaces)
+    newY2Info.append(category)
+
     Y1TestSet.append(newY1Info)
-    # print(newY1Info)
+    Y2TestSet.append(newY2Info)
+    # print(newY2Info)
 
 nonExistantPlayers = []
 
@@ -123,102 +150,122 @@ for runner in idSplitIntoRowsData:
     newY2Info = []
 
     runnerId = runner[0]
-    runnerYear = runner[1].split("-")[0]
-    runnerEvent = runner[2].replace(" ", "").upper()
-    runnerRaceType = runner[3]
+    # runnerYear = runner[1].split("-")[0]
+    # runnerEvent = runner[2].replace(" ", "").upper()
+    # runnerRaceType = runner[3]
 
     runnerInfo = [event for event in allTheInfo if event[0] == runnerId]
     if len(runnerInfo) == 0:
-        if not runnerId in nonExistantPlayers:
+        if not [runnerId] in nonExistantPlayers:
             nonExistantPlayers.append([runnerId])
-    else:
-        if 'MARATHON' in runnerRaceType and 'HALF' not in runnerRaceType and 'DEMI' not in runnerRaceType and not runnerYear == "2016" and not runnerYear == "2015":
-            runnerDetailedInfo = runnerInfo[0]
 
-            avgWithoutCurrentYear = re.sub("[\[\] ]", "", runnerDetailedInfo[6]).split(",")
-            noOfRacesInCurrentYear = re.sub("[\[\] ]", "", runnerDetailedInfo[7]).split(",")
+# ======================================================
+#             Y2TrainingInfo
+# ======================================================
 
-            if runnerYear == '2012':
-                avgWithoutCurrentYear = int(avgWithoutCurrentYear[3])
-                noOfRacesInCurrentYear = int(noOfRacesInCurrentYear[4])
-            elif runnerYear == '2013':
-                avgWithoutCurrentYear = int(avgWithoutCurrentYear[4])
-                noOfRacesInCurrentYear = int(noOfRacesInCurrentYear[3])
-            elif runnerYear == '2014':
-                avgWithoutCurrentYear = int(avgWithoutCurrentYear[5])
-                noOfRacesInCurrentYear = int(noOfRacesInCurrentYear[2])
-            # elif runnerYear == '2015':
-            #     avgWithoutCurrentYear = int(avgWithoutCurrentYear[6])
-            #     noOfRacesInCurrentYear = int(noOfRacesInCurrentYear[1])
-            # elif runnerYear == '2016':
-            #     avgWithoutCurrentYear = int(avgWithoutCurrentYear[7])
-            #     noOfRacesInCurrentYear = int(noOfRacesInCurrentYear[0])
+# for runner in idSplitIntoRowsData:
+#     newY2Info = []
+#
+#     runnerId = runner[0]
+#     runnerYear = runner[1].split("-")[0]
+#     runnerEvent = runner[2].replace(" ", "").upper()
+#     runnerRaceType = runner[3]
+#
+#     runnerInfo = [event for event in allTheInfo if event[0] == runnerId]
+#     if len(runnerInfo) == 0:
+#         if not [runnerId] in nonExistantPlayers:
+#             nonExistantPlayers.append([runnerId])
+#     else:
+#         if 'MARATHON' in runnerRaceType and 'HALF' not in runnerRaceType and 'DEMI' not in runnerRaceType and not runnerYear == "2016" and not runnerYear == "2015":
+#             runnerDetailedInfo = runnerInfo[0]
+#
+#             avgWithoutCurrentYear = re.sub("[\[\] ]", "", runnerDetailedInfo[6]).split(",")
+#             noOfRacesInCurrentYear = re.sub("[\[\] ]", "", runnerDetailedInfo[7]).split(",")
+#
+#             if runnerYear == '2012':
+#                 avgWithoutCurrentYear = int(avgWithoutCurrentYear[3])
+#                 noOfRacesInCurrentYear = int(noOfRacesInCurrentYear[4])
+#             elif runnerYear == '2013':
+#                 avgWithoutCurrentYear = int(avgWithoutCurrentYear[4])
+#                 noOfRacesInCurrentYear = int(noOfRacesInCurrentYear[3])
+#             elif runnerYear == '2014':
+#                 avgWithoutCurrentYear = int(avgWithoutCurrentYear[5])
+#                 noOfRacesInCurrentYear = int(noOfRacesInCurrentYear[2])
+#             # elif runnerYear == '2015':
+#             #     avgWithoutCurrentYear = int(avgWithoutCurrentYear[6])
+#             #     noOfRacesInCurrentYear = int(noOfRacesInCurrentYear[1])
+#             # elif runnerYear == '2016':
+#             #     avgWithoutCurrentYear = int(avgWithoutCurrentYear[7])
+#             #     noOfRacesInCurrentYear = int(noOfRacesInCurrentYear[0])
+#
+#             category = runnerDetailedInfo[8]
+#             finishTime2015 = 0
+#
+#             if '2015' in runnerDetailedInfo[1]:
+#                 finishTime2015 = int(re.sub("[\[\] ]", "", runnerDetailedInfo[3]).split(",")[0])
+#
+#             newY2Info.append(int(runnerId))
+#             newY2Info.append(avgWithoutCurrentYear)
+#             newY2Info.append(category)
+#             newY2Info.append(noOfRacesInCurrentYear)
+#             newY2Info.append(finishTime2015)
+#             print(newY2Info)
+#     Y2TrainingSet.append(newY2Info)
 
-            category = runnerDetailedInfo[8]
-            finishTime2015 = 0
+# ======================================================
+#             Y2TestInfo
+# ======================================================
 
-            if '2015' in runnerDetailedInfo[1]:
-                finishTime2015 = int(re.sub("[\[\] ]", "", runnerDetailedInfo[3]).split(",")[0])
+# for runner in idSplitIntoRowsData:
+#     newY2Info = []
+#
+#     runnerId = runner[0]
+#     runnerYear = runner[1].split("-")[0]
+#     runnerEvent = runner[2].replace(" ", "").upper()
+#     runnerRaceType = runner[3]
+#
+#     runnerInfo = [event for event in allTheInfo if event[0] == runnerId]
+#     if len(runnerInfo) == 0:
+#         if not [runnerId] in nonExistantPlayers:
+#             nonExistantPlayers.append([runnerId])
+#     else:
+#         if 'MARATHON' in runnerRaceType and 'HALF' not in runnerRaceType and 'DEMI' not in runnerRaceType and not runnerYear == "2016":
+#             runnerDetailedInfo = runnerInfo[0]
+#
+#             avgWithoutCurrentYear = re.sub("[\[\] ]", "", runnerDetailedInfo[6]).split(",")
+#             noOfRacesInCurrentYear = re.sub("[\[\] ]", "", runnerDetailedInfo[7]).split(",")
+#
+#             if runnerYear == '2012':
+#                 avgWithoutCurrentYear = int(avgWithoutCurrentYear[3])
+#                 noOfRacesInCurrentYear = int(noOfRacesInCurrentYear[4])
+#             elif runnerYear == '2013':
+#                 avgWithoutCurrentYear = int(avgWithoutCurrentYear[4])
+#                 noOfRacesInCurrentYear = int(noOfRacesInCurrentYear[3])
+#             elif runnerYear == '2014':
+#                 avgWithoutCurrentYear = int(avgWithoutCurrentYear[5])
+#                 noOfRacesInCurrentYear = int(noOfRacesInCurrentYear[2])
+#             elif runnerYear == '2015':
+#                 avgWithoutCurrentYear = int(avgWithoutCurrentYear[6])
+#                 noOfRacesInCurrentYear = int(noOfRacesInCurrentYear[1])
+#             # elif runnerYear == '2016':
+#             #     avgWithoutCurrentYear = int(avgWithoutCurrentYear[7])
+#             #     noOfRacesInCurrentYear = int(noOfRacesInCurrentYear[0])
+#
+#             category = runnerDetailedInfo[8]
+#
+#             newY2Info.append(int(runnerId))
+#             newY2Info.append(avgWithoutCurrentYear)
+#             newY2Info.append(category)
+#             newY2Info.append(noOfRacesInCurrentYear)
+#             # print(newY2Info)
+#     Y2TestSet.append(newY2Info)
 
-            newY2Info.append(int(runnerId))
-            newY2Info.append(avgWithoutCurrentYear)
-            newY2Info.append(category)
-            newY2Info.append(noOfRacesInCurrentYear)
-            newY2Info.append(finishTime2015)
-            # print(newY2Info)
-    Y2TrainingSet.append(newY2Info)
-
-
-for runner in idSplitIntoRowsData:
-    newY2Info = []
-
-    runnerId = runner[0]
-    runnerYear = runner[1].split("-")[0]
-    runnerEvent = runner[2].replace(" ", "").upper()
-    runnerRaceType = runner[3]
-
-    runnerInfo = [event for event in allTheInfo if event[0] == runnerId]
-    if len(runnerInfo) == 0:
-        if not runnerId in nonExistantPlayers:
-            nonExistantPlayers.append(runnerId)
-    else:
-        if 'MARATHON' in runnerRaceType and 'HALF' not in runnerRaceType and 'DEMI' not in runnerRaceType and not runnerYear == "2016":
-            runnerDetailedInfo = runnerInfo[0]
-
-            avgWithoutCurrentYear = re.sub("[\[\] ]", "", runnerDetailedInfo[6]).split(",")
-            noOfRacesInCurrentYear = re.sub("[\[\] ]", "", runnerDetailedInfo[7]).split(",")
-
-            if runnerYear == '2012':
-                avgWithoutCurrentYear = int(avgWithoutCurrentYear[3])
-                noOfRacesInCurrentYear = int(noOfRacesInCurrentYear[4])
-            elif runnerYear == '2013':
-                avgWithoutCurrentYear = int(avgWithoutCurrentYear[4])
-                noOfRacesInCurrentYear = int(noOfRacesInCurrentYear[3])
-            elif runnerYear == '2014':
-                avgWithoutCurrentYear = int(avgWithoutCurrentYear[5])
-                noOfRacesInCurrentYear = int(noOfRacesInCurrentYear[2])
-            elif runnerYear == '2015':
-                avgWithoutCurrentYear = int(avgWithoutCurrentYear[6])
-                noOfRacesInCurrentYear = int(noOfRacesInCurrentYear[1])
-            # elif runnerYear == '2016':
-            #     avgWithoutCurrentYear = int(avgWithoutCurrentYear[7])
-            #     noOfRacesInCurrentYear = int(noOfRacesInCurrentYear[0])
-
-            category = runnerDetailedInfo[8]
-
-            newY2Info.append(int(runnerId))
-            newY2Info.append(avgWithoutCurrentYear)
-            newY2Info.append(category)
-            newY2Info.append(noOfRacesInCurrentYear)
-            # print(newY2Info)
-    Y2TestSet.append(newY2Info)
-
-
-writeToCSV("FinalDataSets/Y1TrainSet", Y1TrainingSet)
-writeToCSV("FinalDataSets/Y1TestSet", Y1TestSet)
-writeToCSV("FinalDataSets/Y2TrainingSet", Y2TrainingSet)
-writeToCSV("FinalDataSets/Y2TestSet", Y2TestSet)
-writeToCSV("FinalDataSets/IdsNotListed", nonExistantPlayers)
+#
+writeToCSV("FinalDataSets/DataSetOn23rd/Y1TrainSet", Y1TrainingSet)
+# writeToCSV("FinalDataSets/DataSetOn23rd/Y1TestSet", Y1TestSet)
+writeToCSV("FinalDataSets/DataSetOn23rd/Y2TrainingSet", Y2TrainingSet)
+# writeToCSV("FinalDataSets/DataSetOn23rd/Y2TestSet", Y2TestSet)
+# writeToCSV("FinalDataSets/IdsNotListed", nonExistantPlayers)
 
 # 0 - PlayerID
 # 1 - Montreal Marathon Years
