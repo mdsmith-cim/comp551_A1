@@ -5,11 +5,14 @@ import pandas as pd
 import split_data as sp
 import bayes as by
 from sklearn.naive_bayes import GaussianNB
+import matplotlib.pyplot as plt
 
 ## Get formatted data
 pastruns = pd.read_csv("FinalDataSets/Y1TrainSet.csv")
-y = (pastruns.didTheyAttend==1).values.reshape((-1,1))
-X = pastruns.loc[:,pastruns.columns[0:6]].values
+y = pastruns.loc[:,pastruns.columns[-1]].values.reshape((-1,1))
+#X = pastruns.loc[:,pastruns.columns[1:5]].values
+X = pastruns.loc[:,pastruns.columns[[1,2,4]]].values
+
 
 ## Cross validate
 ## Split train/test
@@ -17,7 +20,16 @@ X_train, X_test, y_train, y_test = sp.split(np.concatenate((X,y),axis=1))
 
 ## Run logistic regression
 log_reg = lg(X_train, y_train, alpha=1e-6,error_threshold=1e-6,max_iterations=50000)
-log_reg.fit()
+diff_list = log_reg.fit()
+
+ax = plt.plot(diff_list)
+plt.ylabel("Log Likelihood Difference")
+plt.xlabel("Number of Iterations")
+
+plt.yscale('log')
+
+plt.show()
+
 accuracy = log_reg.score(X_test, y_test) * 100
 print("Classification (test) accuracy: {0}%".format(accuracy))
 
