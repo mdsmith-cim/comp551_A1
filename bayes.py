@@ -68,6 +68,18 @@ class naive_bayes:
 
     # Returns classification accuracy for given X and y
     def score(self,X,y):
-        pred = self.predict(X)
+        pred = self.predict(X).astype(np.int32)
+        yint = y.astype(np.int32).reshape(-1)
 
-        return np.count_nonzero(pred.astype(np.int32) == y.astype(np.int32).reshape(-1))/y.size
+        accu = np.count_nonzero(pred == yint) / yint.size
+
+        tp = np.count_nonzero((pred == True) & (yint == True))
+        tn = np.count_nonzero((pred == False) & (yint == False))
+        fp = np.count_nonzero((yint == False) & (pred == True))
+        fn = np.count_nonzero((yint == True) & (pred == False))
+
+        precision = tp / (tp + fp)
+        recall = tp / (tp + fn)
+        false_positive = fp / (fp + tn)
+
+        return accu, precision, recall, false_positive

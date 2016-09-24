@@ -3,11 +3,16 @@ import split_data as sp
 import bayes as by
 from sklearn.naive_bayes import GaussianNB
 import matplotlib.pyplot as plt
-import numpy as np
-import cross_valid as cv
-import pandas as pd
 from log_reg import lg
 import pprint
+import numpy as np
+import linear_reg
+import split_data as sp
+import pandas as pd
+from pandas import DataFrame
+from sklearn.linear_model import LinearRegression as SKLinear
+
+### Calculate Y1
 
 ## Get formatted data
 pastruns = pd.read_csv("FinalDataSets/DataSetOn23rd/Y1TrainSet.csv")
@@ -64,13 +69,62 @@ print("Precision: {0}\nRecall: {1}\nFalse Positives: {2}\nClass. Accuracy:{3}\n"
 # print("SK Learn Naive Bayes: {0}%".format(gnb.score(X_test, y_test.reshape(-1)) * 100))
 #
 
-## Calculate final predictions for submission
 
+### Calculate Y2
+
+# Get formatted data
+pastruns = pd.read_csv("FinalDataSets/DataSetOn23rd/Y2TrainingSet.csv")
+y = pastruns.loc[:,pastruns.columns[-1]].values.reshape((-1,1))
+X = pastruns.loc[:,pastruns.columns[1:4]].values
+
+# Split
+X_train, X_test, y_train, y_test = sp.split(np.concatenate((X,y.reshape((-1,1))),axis=1))
+
+# Implemented Linear Reg Training
+lin = linear_reg.linearReg(X_train, y_train)
+lin.fit()
+print("Linear regression Test R^2 error: {0}".format(lin.score(X_test, y_test)))
+print("Linear regression Train R^2 error: {0}".format(lin.score(X_train, y_train)))
+
+### SK Learn Training test
+# sk = SKLinear()
+# sk.fit(X_train, y_train)
+# print("SKLearn lin. regression R^2 error: {0}".format(sk.score(X_test, y_test)))
+#
+
+
+##### ---- FINAL PREDICTIONS ----
+####  Calculate final predictions for submission
+
+
+## Y1
 pastruns = pd.read_csv("FinalDataSets/DataSetOn23rd/Y1TestSet_Extended.csv")
 X = pastruns.loc[:,pastruns.columns[1:4]].values
 ids = pastruns.loc[:,pastruns.columns[0]].values
 
 
-pred_logistic_reg = log_reg.predict(X)
-pred_bayes = bayes.predict(X)
+pred_logistic_reg = log_reg.predict(X).astype(np.int32).reshape(-1)
+pred_bayes = bayes.predict(X).astype(np.int32).reshape(-1)
 
+
+## Y2
+pastruns = pd.read_csv("FinalDataSets/DataSetOn23rd/Y2TestSet_Extended.csv")
+X = pastruns.loc[:,pastruns.columns[1:4]].values
+ids = pastruns.loc[:,pastruns.columns[0]].values
+
+pred_linear_reg = lin.predict(X)
+
+pred_linear_reg2 = []
+for i in range(0, pred_linear_reg.shape[0]):
+    m, s = divmod(np.asscalar(pred_linear_reg[i]), 60)
+    h, m = divmod(m, 60)
+    pred_linear_reg2.append("{:0>2d}:{:1>2d}:{:2>2d}".format(int(h), int(m), int(s)))
+
+
+## Prepare data for writing
+
+listToWrite = [ids,pred_logistic_reg, pred_bayes, pred_linear_reg2]
+
+df = DataFrame(listToWrite).transpose()
+
+df.to_csv('FinalResults.csv',header=False, index=False)
