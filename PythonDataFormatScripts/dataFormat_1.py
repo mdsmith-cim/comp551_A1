@@ -22,9 +22,12 @@ def writeToCSV (csvFileName, dataList):
 with open('Project1_data.csv', newline='') as marathonData:     # Reads the given csv
     csvReader = csv.reader(marathonData)
 
+
+    # ====================================================================
+    #     Skimming through the entries to vertically arrange every race
+    # ====================================================================
     for runnerInfo in csvReader:
         if not firstRow == 1:
-            #print(runnerInfo)
             rowLength = len(runnerInfo)                             # Get the length of the row to see how many columns it has
 
             if not ((rowLength - 1) % 5) == 0:
@@ -34,14 +37,12 @@ with open('Project1_data.csv', newline='') as marathonData:     # Reads the give
                 sys.exit(0)
 
             runnerInstances = (rowLength - 1) // 5                   # Number of different races for this specific runner
-            #print(runnerInstances)
 
             if (runnerInstances == 0):
                 print ("Player with ID: %d has no data given for him", runnerInfo[0])
                 sys.exit(0)
 
             if (runnerInstances > 1):
-                #print(runnerInstances)
                 for instance in range(0,runnerInstances):
                     instanceStartColumn = (instance * 5) + 1
                     instanceEndColumn = (instance * 5) + 5
@@ -56,7 +57,6 @@ with open('Project1_data.csv', newline='') as marathonData:     # Reads the give
 
                     runnerCurrentInstance[3] = runnerCurrentInstance[3].upper()
                     editedData.append(runnerCurrentInstance)
-                    # print (runnerCurrentInstance)
             else:
                 editedData.append(runnerInfo)
 
@@ -65,12 +65,9 @@ with open('Project1_data.csv', newline='') as marathonData:     # Reads the give
             editedData.append(headerRecord)
             firstRow = 0
 
-    # Print All the Data
-    # for runnerInfo in editedData:
-    #     print(runnerInfo)
-
-    #print (len(editedData))
-
+# ====================================================================
+#     Separate races by years in which they were run in
+# ====================================================================
 for eventInstance in editedData:
     eventDate = eventInstance[1]
     eventDateList = eventDate.split("-")
@@ -79,7 +76,6 @@ for eventInstance in editedData:
         eventYear = eventDateList[0]
         eventMonth = eventDateList[1]
         eventDay = eventDateList[2]
-        #eventInstance[1] = eventMonth + "-" + eventDay
 
         if eventYear == "2016":
             if len(eventsOf2016) > 0:
@@ -124,11 +120,13 @@ for eventInstance in editedData:
         newEvent = [eventInstance[1], eventInstance[2], eventInstance[3]]
         allEvents.append(newEvent)
     else:
-        # print (eventDateList[0])
         if eventDateList[0] != "EVENT DATE":
             print ("This Event has a different Address Format: ", eventInstance)
             sys.exit(0)
 
+# ====================================================================
+#     Get all the distinct events in the entire data-set
+# ====================================================================
 eventIDCount = 0
 for event in allEvents:
     if not event in uniqueEventsWithTypes:
@@ -155,7 +153,9 @@ distinctEventsWithDate.sort(key=lambda elem: (elem[0], elem[1]))
 for count in range(0, len(distinctEventsWithDate)):
     distinctEventsWithDate[count][1] = distinctEventsWithDate[count][1].upper()
 
- # Without Date List
+# ====================================================================
+#     Get all the distinct events without the date information
+# ====================================================================
 distinctEventWithoutDate = []
 for distinctEvent in distinctEventsWithDate:
     if [distinctEvent[1]] not in distinctEventWithoutDate:
@@ -163,23 +163,19 @@ for distinctEvent in distinctEventsWithDate:
 
 distinctEventWithoutDate.sort()
 
+# ====================================================================
+#     Assign event Ids for each event
+# ====================================================================
 count = 0
 eventListEventID = []
 previousEvent = []
 for distinctDateEventPair in distinctEventsWithDate:
     countLen = len(str(count))
     appendingZeroes = 5 - countLen
-    # eventId = distinctDateEventPair[0].replace("-", "") + str(str(0) * appendingZeroes) + str(count)
-    # count = count + 1
 
-    if len(previousEvent) > 0 and (previousEvent[1] == 'MARATHON OASIS DE MONTREAL' or previousEvent[1] == "MARATHON OASIS ROCK 'N' ROLL DE MONTREAL"):
+    if len(previousEvent) > 0 and (previousEvent[1] == 'MARATHON OASIS DE MONTREAL' or
+                                           previousEvent[1] == "MARATHON OASIS ROCK 'N' ROLL DE MONTREAL"):
         eventId = previousEvent[2]
-        # ['2013-09-22', 'MARATHON OASIS DE MONTREAL']
-        # ['2013-09-22', 'MARATHONOASISDEMONTREAL']
-        # ['2012-09-23', 'MARATHON OASIS DE MONTREAL']
-        # ['2012-09-23', 'MARATHONOASISDEMONTREAL']
-        # ['2015-09-20', "MARATHON OASIS ROCK 'N' ROLL DE MONTREAL"]
-        # ['2015-09-20', "MARATHONOASISROCK'N'ROLLDEMONTREAL"]
     else:
         eventId = distinctDateEventPair[0].replace("-", "") + str(str(0) * appendingZeroes) + str(count)
         count = count + 1
@@ -191,8 +187,10 @@ for distinctDateEventPair in distinctEventsWithDate:
 
     eventListEventID.append(newEvent_IDPair)
     previousEvent = newEvent_IDPair
-    # print (newEvent_IDPair)
 
+# ====================================================================
+#           Get the list of all race types available
+# ====================================================================
 allTypesOfTheRaces = []
 for type in uniqueEventsWithTypes:
     if type[2].upper().replace(" ", "") not in allTypesOfTheRaces:
@@ -205,6 +203,9 @@ for raceType in allTypesOfTheRaces:
     if raceType not in uniqueTypesOfTheRaces:
         uniqueTypesOfTheRaces.append(raceType)
 
+# ====================================================================
+#       Function to check if a given character is an int
+# ====================================================================
 def representsAnInt(s):
     try:
         int(s)
@@ -212,6 +213,9 @@ def representsAnInt(s):
     except ValueError:
         return False
 
+# ====================================================================
+#       Sssign numerical values to different race-types
+# ====================================================================
 raceTypeInKiloMeters = []
 for uniqueType in uniqueTypesOfTheRaces:
     newTypeWithKilometers = []
@@ -221,9 +225,6 @@ for uniqueType in uniqueTypesOfTheRaces:
         newTypeWithKilometers.append(20)
     else:
         splitRaceType = ["".join(x) for _, x in itertools.groupby(uniqueType[0], key=str.isdigit)]
-        # newList = (x for x in splitRaceType if isinstance(int(x), numbers.Number))
-        # splitRaceType.sort()
-
         numberEntryOnly = []
         for entry in splitRaceType:
             if representsAnInt(entry):
@@ -246,42 +247,32 @@ for uniqueType in uniqueTypesOfTheRaces:
                 newTypeWithKilometers.append(20)
             else:
                 newTypeWithKilometers.append(40)
-
-            # if ('MARATHON' in splitRaceType[0]) or ('TRI' in splitRaceType[0]) or ('ATHLON' in splitRaceType[0]) or \
-            #         ('LONG' in splitRaceType[0]) or ('SPRINT' in splitRaceType[0]) or ('CHALLENGE' in splitRaceType[0]):
-            #     newTypeWithKilometers.append(40)
-            # else:
-            #     print ("ERRORRRRR")
-            #     print (splitRaceType)
-            #     sys.exit(0)
-
-    # print(newTypeWithKilometers)
     raceTypeInKiloMeters.append(newTypeWithKilometers)
 
+# ========================================================================
+#       Fetch all the different types of runner categories in the data
+# ========================================================================
 allRaceCategories = []
-
 itercars = iter(editedData)
 next(itercars)
 
 for instance in itercars:
     allRaceCategories.append([instance[5]])
-    # print (instance[5])
 
 allRaceCategories.sort()
-
 uniqueRaceCategories = []
 
 for category in allRaceCategories:
     if not category in uniqueRaceCategories:
         uniqueRaceCategories.append(category)
-        # print(category)
 
 for category in uniqueRaceCategories:
     splitCategory = ["".join(x) for _, x in itertools.groupby(category[0], key=str.isdigit)]
-    print (splitCategory)
 
 
-
+# ========================================================================
+#       Write all mined data into seperate files for later analysis
+# ========================================================================
 writeToCSV("ArrangedByID/editedDataByID", editedData)
 writeToCSV("ArrangedByYear/editedDataFor2016", eventsOf2016)
 writeToCSV("ArrangedByYear/editedDataFor2015", eventsOf2015)
