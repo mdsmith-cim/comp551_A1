@@ -1,14 +1,14 @@
 import csv
 import re
 
-allTheInfo = []
-idSplitIntoRowsData = []
-ageGroupAverageTill2014 = []
+allRunnersEver = []
+runningData2016 = []
+runningData2015 = []
+runningData2014 = []
+runningData2013 = []
+runningData2012 = []
+montrealMarathonData = []
 
-Y1TrainingSet = []
-Y1TestSet = []
-Y2TrainingSet = []
-Y2TestSet = []
 
 def writeToCSV(csvFileName, dataList):
     csvFileNameWithExtension = csvFileName + '.csv'
@@ -16,13 +16,6 @@ def writeToCSV(csvFileName, dataList):
         csvWriter = csv.writer(fp, delimiter=',')
         csvWriter.writerows(dataList)
 
-# ===================================================================================
-#   Load the data set consisting of  all information regarding every specific runner
-# ===================================================================================
-with open('ArrangedByID/FormattedAllInfo.csv', newline='') as marathonData:  # Reads the given csv
-    csvReader = csv.reader(marathonData)
-    for participant in csvReader:
-        allTheInfo.append(participant)
 
 # ========================================================================
 #     Load all the data initially generated from the given data-set
@@ -30,175 +23,445 @@ with open('ArrangedByID/FormattedAllInfo.csv', newline='') as marathonData:  # R
 with open('ArrangedByID/editedDataByID.csv', newline='') as marathonData:  # Reads the given csv
     csvReader = csv.reader(marathonData)
     for participant in csvReader:
-        idSplitIntoRowsData.append(participant)
+        allRunnersEver.append(participant)
 
 # ========================================================================
-#     Function to get the Mean Running time for a given Age-Group
+#     Load all the data related to MontrealMarathon races only
 # ========================================================================
-def getMeanForAgeGroup(runner):
-    ageGroup = runner[8]
-    ageGroupAverage = 0
-    alreadyExists = [event for event in ageGroupAverageTill2014 if event[0] == ageGroup]
+with open('MontrealMarathon/montrealMarathonFinalData.csv', newline='') as marathonData:  # Reads the given csv
+    csvReader = csv.reader(marathonData)
+    for participant in csvReader:
+        montrealMarathonData.append(participant)
 
-    if len(alreadyExists) > 0:
-        ageGroupAverage = alreadyExists[0][1]
-    elif not runner[0] == '768':
-        ageGropuList = [event for event in allTheInfo if event[8] == ageGroup]
-        totalTime = 0
-        itemCount = 0
+# ========================================================================
+#     Load all the data specific to 2016 races
+# ========================================================================
+with open('ArrangedByYear/editedDataFor2016.csv', newline='') as marathonData:  # Reads the given csv
+    csvReader = csv.reader(marathonData)
+    for participant in csvReader:
+        if len(participant) == 0:
+            pass
+        else:
+            runningData2016.append(participant)
 
-        for person in ageGropuList:
-            yearList = re.sub("[\[\] ]", "", person[1]).split(",")
-            timeList = re.sub("[\[\] ]", "", person[3]).split(",")
+# ========================================================================
+#     Load all the data specific to 2015 races
+# ========================================================================
+with open('ArrangedByYear/editedDataFor2015.csv', newline='') as marathonData:  # Reads the given csv
+    csvReader = csv.reader(marathonData)
+    for participant in csvReader:
+        if len(participant) == 0:
+            pass
+        else:
+            runningData2015.append(participant)
 
-            if '2015' in yearList:
-                for item in range(1, len(yearList)):
-                    if not '-1' in timeList[item]:
-                        totalTime = totalTime + int(timeList[item])
-                        itemCount = itemCount + 1
-            else:
-                for item in range(0, len(yearList)):
-                    if not '-1' in timeList[item]:
-                        totalTime = totalTime + int(timeList[item])
-                        itemCount = itemCount + 1
+# ========================================================================
+#     Load all the data specific to 2014 races
+# ========================================================================
+with open('ArrangedByYear/editedDataFor2014.csv', newline='') as marathonData:  # Reads the given csv
+    csvReader = csv.reader(marathonData)
+    for participant in csvReader:
+        if len(participant) == 0:
+            pass
+        else:
+            runningData2014.append(participant)
 
-        ageGroupAverage = int(totalTime / itemCount)
-        newAgeGroupTime = []
-        newAgeGroupTime.append(ageGroup)
-        newAgeGroupTime.append(ageGroupAverage)
-        ageGroupAverageTill2014.append(newAgeGroupTime)
-    return ageGroupAverage
+# ========================================================================
+#     Load all the data specific to 2013 races
+# ========================================================================
+with open('ArrangedByYear/editedDataFor2013.csv', newline='') as marathonData:  # Reads the given csv
+    csvReader = csv.reader(marathonData)
+    for participant in csvReader:
+        if len(participant) == 0:
+            pass
+        else:
+            runningData2013.append(participant)
+
+# ========================================================================
+#     Load all the data specific to 2012 races
+# ========================================================================
+with open('ArrangedByYear/editedDataFor2012.csv', newline='') as marathonData:  # Reads the given csv
+    csvReader = csv.reader(marathonData)
+    for participant in csvReader:
+        if len(participant) == 0:
+            pass
+        else:
+            runningData2012.append(participant)
 
 
-# =======================================================================
-#     From the loaded information generate the Training set for Y1 & Y2
-#          Consists of data about Montreal Participants until 2014
-# =======================================================================
-for runner in allTheInfo:
-    newY1Info = []
-    newY2Info = []
-    didTheyAttend = -1
-
-    playerId = runner[0]
-    noOfMontrealMarathons = int(runner[4])
-    noOfAllRaces = int(runner[5])
-    averageRuntimeInMarathons = int(re.sub("[\[\] ]","", runner[6]).split(",")[0])
-    category = runner[8]
-
-
-    if '2015' in runner[1]:
-        didTheyAttend = 1
-        noOfMontrealMarathons = noOfMontrealMarathons - 1
-        noOfAllRaces = noOfAllRaces - 1
-
-        if noOfMontrealMarathons == 0 and averageRuntimeInMarathons == 0:
-            averageRuntimeInMarathons = getMeanForAgeGroup(runner)
+# ========================================================================
+#     Function to convert the time metric into seconds
+# ========================================================================
+def convertTimeToSeconds(time):
+    if not '-1' in time:
+        dataSplit = time.split(":")
+        hours = int(dataSplit[0])
+        minutes = int(dataSplit[1])
+        seconds = int(dataSplit[2])
+        convertedToSeconds = ((hours * 60 * 60) + (minutes * 60) + (seconds))
+        return convertedToSeconds
     else:
-        didTheyAttend = 0
+        return -1
 
-    if averageRuntimeInMarathons == -1:
-        averageRuntimeInMarathons = getMeanForAgeGroup(runner)
 
-    finish_2015Time = 0
-    if '2015' in runner[1]:
-        finish_2015Time = int(re.sub("[\[\] ]", "", runner[3]).split(",")[0])
+# ========================================================================
+#     Function to get all the other Marathons (other than MontrealMarathon)
+#           from a list of all races in an year
+# ========================================================================
+def getMarathonersInYear(allRacesList):
+    marathonersInYear = []
+    for participant in range(0, len(allRacesList)):
+        allRacesList[participant][2] = allRacesList[participant][2].upper().replace(" ", "")
+        if ('MARATHON' in allRacesList[participant][3] and
+                    'HALF' not in allRacesList[participant][3] and 'DEMI' not in allRacesList[participant][3]) \
+                and 'MONTREAL' not in allRacesList[participant][2] \
+                and 'MONTRÉAL' not in allRacesList[participant][2] and 'OASIS' not in allRacesList[participant][2]:
+            allRacesList[participant][3] = allRacesList[participant][3].upper()
+            allRacesList[participant][4] = convertTimeToSeconds(allRacesList[participant][4])
+            marathonersInYear.append(allRacesList[participant])
+    return marathonersInYear
 
-    newY1Info.append(playerId)
-    newY1Info.append(noOfMontrealMarathons)
-    newY1Info.append(noOfAllRaces)
-    # newY1Info.append(averageRuntimeInMarathons)
-    newY1Info.append(category)
-    newY1Info.append(didTheyAttend)
 
-    newY2Info.append(playerId)
-    newY2Info.append(averageRuntimeInMarathons)
-    newY2Info.append(noOfAllRaces)
-    newY2Info.append(category)
-    newY2Info.append(finish_2015Time)
+# ========================================================================
+#     Fetch all the other Marathons (other than MontrealMarathon)
+#           from a list of all races in an year
+# ========================================================================
+print("Fetching external marathon details every year per participant......")
+marathonsOnlyIn2016 = getMarathonersInYear(runningData2016)
+marathonsOnlyIn2015 = getMarathonersInYear(runningData2015)
+marathonsOnlyIn2014 = getMarathonersInYear(runningData2014)
+marathonsOnlyIn2013 = getMarathonersInYear(runningData2013)
+marathonsOnlyIn2012 = getMarathonersInYear(runningData2012)
 
-    Y1TrainingSet.append(newY1Info)
-    if not newY2Info[4] == 0 and not newY2Info[4] == -1:
-        Y2TrainingSet.append(newY2Info)
+# ========================================================================
+#       Write the extracted data to separate files
+# ========================================================================
+print("Writing external marathon details per year per participant......")
+writeToCSV("ArrangedByYear/otherMarathonsOnlyIn2016", marathonsOnlyIn2016)
+writeToCSV("ArrangedByYear/otherMarathonsOnlyIn2015", marathonsOnlyIn2015)
+writeToCSV("ArrangedByYear/otherMarathonsOnlyIn2014", marathonsOnlyIn2014)
+writeToCSV("ArrangedByYear/otherMarathonsOnlyIn2013", marathonsOnlyIn2013)
+writeToCSV("ArrangedByYear/otherMarathonsOnlyIn2012", marathonsOnlyIn2012)
 
-# =======================================================================
-#     From the loaded information generate the Testing set for Y1 & Y2
-#          Consists of data about Montreal Participants until 2015
-# =======================================================================
-for runner in allTheInfo:
-    newY1Info = []
-    newY2Info = []
 
+# ========================================================================
+#       Get average of marathon times (yearly basis and year-intervals basis)
+# ========================================================================
+def getAverageMarathonRuntime(runner):
     playerId = runner[0]
-    noOfMontrealMarathons = int(runner[4])
-    noOfAllRaces = int(runner[5])
-    averageRuntimeInMarathons = int(re.sub("[\[\] ]", "", runner[6]).split(",")[1])
-    category = runner[8]
+    montrealMarathonYears = runner[1]
+    montrealMarathonRuntimes = runner[3]
 
-    if averageRuntimeInMarathons == -1:
-        averageRuntimeInMarathons = getMeanForAgeGroup(runner)
+    raceTimesIn2012 = []
+    raceTimesIn2013 = []
+    raceTimesIn2014 = []
+    raceTimesIn2015 = []
+    raceTimesIn2016 = []
 
-    newY1Info.append(playerId)
-    newY1Info.append(noOfMontrealMarathons)
-    newY1Info.append(noOfAllRaces)
-    newY1Info.append(category)
+    timeAverage2012 = 0
+    timeAverage2013 = 0
+    timeAverage2014 = 0
+    timeAverage2015 = 0
+    timeAverage2016 = 0
 
-    newY2Info.append(playerId)
-    newY2Info.append(averageRuntimeInMarathons)
-    newY2Info.append(noOfAllRaces)
-    newY2Info.append(category)
+    racesIn2016 = [event for event in marathonsOnlyIn2016 if playerId == int(event[0])]
+    racesIn2015 = [event for event in marathonsOnlyIn2015 if playerId == int(event[0])]
+    racesIn2014 = [event for event in marathonsOnlyIn2014 if playerId == int(event[0])]
+    racesIn2013 = [event for event in marathonsOnlyIn2013 if playerId == int(event[0])]
+    racesIn2012 = [event for event in marathonsOnlyIn2012 if playerId == int(event[0])]
 
-    Y1TestSet.append(newY1Info)
-    Y2TestSet.append(newY2Info)
+    if len(racesIn2016) > 0:
+        for race in racesIn2016:
+            raceTimesIn2016.append(race[4])
 
-# ============================================================================================
-#       Get a list of all other players who hadn't participated in the Montreal Marathon ever
-#             and hence left out in the above formulated two sets
-# ============================================================================================
-nonExistantPlayers = []
-for runner in idSplitIntoRowsData:
-    newY2Info = []
-    runnerId = runner[0]
-    runnerInfo = [event for event in allTheInfo if event[0] == runnerId]
-    if len(runnerInfo) == 0:
-        if not [runnerId] in nonExistantPlayers:
-            nonExistantPlayers.append([runnerId])
+    if len(racesIn2015) > 0:
+        for race in racesIn2015:
+            raceTimesIn2015.append(race[4])
 
+    if len(racesIn2014) > 0:
+        for race in racesIn2014:
+            raceTimesIn2014.append(race[4])
+
+    if len(racesIn2013) > 0:
+        for race in racesIn2013:
+            raceTimesIn2013.append(race[4])
+
+    if len(racesIn2012) > 0:
+        for race in racesIn2012:
+            raceTimesIn2012.append(race[4])
+
+            # ===========================================================
+    totalTime2012 = 0
+    totalCount2012 = len(raceTimesIn2012)
+
+    if totalCount2012 > 0:
+        for time in raceTimesIn2012:
+            if time == -1:
+                totalCount2012 = totalCount2012 - 1
+            else:
+                totalTime2012 = totalTime2012 + time
+
+    if 2012 in montrealMarathonYears:
+        indexOfTime = montrealMarathonYears.index(2012)
+        totalTime2012 = totalTime2012 + montrealMarathonRuntimes[indexOfTime]
+        totalCount2012 = totalCount2012 + 1
+
+    if not totalCount2012 == 0:
+        timeAverage2012 = totalTime2012 / totalCount2012
+    # ===========================================================
+    totalTime2013 = 0
+    totalCount2013 = len(raceTimesIn2013)
+
+    if totalCount2013 > 0:
+        for time in raceTimesIn2013:
+            if time == -1:
+                totalCount2013 = totalCount2013 - 1
+            else:
+                totalTime2013 = totalTime2013 + time
+
+    if 2013 in montrealMarathonYears:
+        indexOfTime = montrealMarathonYears.index(2013)
+        totalTime2013 = totalTime2013 + montrealMarathonRuntimes[indexOfTime]
+        totalCount2013 = totalCount2013 + 1
+
+    if not (totalCount2013 + totalCount2013) == 0:
+        timeAverage2013 = (totalTime2012 + totalTime2013) / (totalCount2012 + totalCount2013)
+    # ===========================================================
+    totalTime2014 = 0
+    totalCount2014 = len(raceTimesIn2014)
+
+    if totalCount2014 > 0:
+        for time in raceTimesIn2014:
+            if time == -1:
+                totalCount2014 = totalCount2014 - 1
+            else:
+                totalTime2014 = totalTime2014 + time
+
+    if 2014 in montrealMarathonYears:
+        indexOfTime = montrealMarathonYears.index(2014)
+        totalTime2014 = totalTime2014 + montrealMarathonRuntimes[indexOfTime]
+        totalCount2014 = totalCount2014 + 1
+
+    if not (totalCount2012 + totalCount2013 + totalCount2014) == 0:
+        timeAverage2014 = (totalTime2012 + totalTime2013 + totalTime2014) / (
+            totalCount2012 + totalCount2013 + totalCount2014)
+    # ===========================================================
+    totalTime2015 = 0
+    totalCount2015 = len(raceTimesIn2015)
+
+    if totalCount2015 > 0:
+        for time in raceTimesIn2015:
+            if time == -1:
+                totalCount2015 = totalCount2015 - 1
+            else:
+                totalTime2015 = totalTime2015 + time
+
+    if 2015 in montrealMarathonYears:
+        indexOfTime = montrealMarathonYears.index(2015)
+        totalTime2015 = totalTime2015 + montrealMarathonRuntimes[indexOfTime]
+        totalCount2015 = totalCount2015 + 1
+
+    if not (totalCount2012 + totalCount2013 + totalCount2014 + totalCount2015) == 0:
+        timeAverage2015 = (totalTime2012 + totalTime2013 + totalTime2014 + totalTime2015) / (
+            totalCount2012 + totalCount2013 + totalCount2014 + totalCount2015)
+    # ===========================================================
+    totalTime2016 = 0
+    totalCount2016 = len(raceTimesIn2016)
+
+    if totalCount2016 > 0:
+        for time in raceTimesIn2016:
+            if time == -1:
+                totalCount2016 = totalCount2016 - 1
+            else:
+                totalTime2016 = totalTime2016 + time
+
+    if not (totalCount2012 + totalCount2013 + totalCount2014 + totalCount2015 + totalCount2016) == 0:
+        timeAverage2016 = (totalTime2012 + totalTime2013 + totalTime2014 + totalTime2015 + totalTime2016) / (
+            totalCount2012 + totalCount2013 + totalCount2014 + totalCount2015 + totalCount2016)
+    # ===========================================================
+    montreal_2012_time = 0
+    montreal_2013_time = 0
+    montreal_2014_time = 0
+    montreal_2015_time = 0
+    montreal_2016_time = 0
+
+    raceCount_2012 = totalCount2012
+    raceCount_2013 = totalCount2013
+    raceCount_2014 = totalCount2014
+    raceCount_2015 = totalCount2015
+    raceCount_2016 = totalCount2016
+
+    time_2012 = 0
+    time_2013 = 0
+    time_2014 = 0
+    time_2015 = 0
+    time_2016 = 0
+
+    if 2012 in montrealMarathonYears:
+        indexOfTime = montrealMarathonYears.index(2012)
+        montreal_2012_time = montrealMarathonRuntimes[indexOfTime]
+        raceCount_2012 = totalCount2012 - 1
+
+    if not (raceCount_2012 + totalCount2013 + totalCount2014 + totalCount2015 + totalCount2016) == 0:
+        time_2012 = (
+                        (
+                            totalTime2012 - montreal_2012_time) + totalTime2013 + totalTime2014 + totalTime2015 + totalTime2016) / (
+                        raceCount_2012 + totalCount2013 + totalCount2014 + totalCount2015 + totalCount2016
+                    )
+
+    if 2013 in montrealMarathonYears:
+        indexOfTime = montrealMarathonYears.index(2013)
+        montreal_2013_time = montrealMarathonRuntimes[indexOfTime]
+        raceCount_2013 = totalCount2013 - 1
+
+    if not (totalCount2012 + raceCount_2013 + totalCount2014 + totalCount2015 + totalCount2016) == 0:
+        time_2013 = (
+                        totalTime2012 + (
+                            totalTime2013 - montreal_2013_time) + totalTime2014 + totalTime2015 + totalTime2016) / (
+                        totalCount2012 + raceCount_2013 + totalCount2014 + totalCount2015 + totalCount2016
+                    )
+
+    if 2014 in montrealMarathonYears:
+        indexOfTime = montrealMarathonYears.index(2014)
+        montreal_2014_time = montrealMarathonRuntimes[indexOfTime]
+        raceCount_2014 = totalCount2014 - 1
+
+    if not (totalCount2012 + totalCount2013 + raceCount_2014 + totalCount2015 + totalCount2016) == 0:
+        time_2014 = (
+                        totalTime2012 + totalTime2013 + (
+                            totalTime2014 - montreal_2014_time) + totalTime2015 + totalTime2016) / (
+                        totalCount2012 + totalCount2013 + raceCount_2014 + totalCount2015 + totalCount2016
+                    )
+
+    if 2015 in montrealMarathonYears:
+        indexOfTime = montrealMarathonYears.index(2015)
+        montreal_2015_time = montrealMarathonRuntimes[indexOfTime]
+        raceCount_2015 = totalCount2015 - 1
+
+    if not (totalCount2012 + totalCount2013 + totalCount2014 + raceCount_2015 + totalCount2016) == 0:
+        time_2015 = (
+                        totalTime2012 + totalTime2013 + totalTime2014 + (
+                            totalTime2015 - montreal_2015_time) + totalTime2016) / (
+                        totalCount2012 + totalCount2013 + totalCount2014 + raceCount_2015 + totalCount2016
+                    )
+
+    if 2016 in montrealMarathonYears:
+        indexOfTime = montrealMarathonYears.index(2016)
+        montreal_2016_time = montrealMarathonRuntimes[indexOfTime]
+        raceCount_2016 = totalCount2016 - 1
+
+    if not (totalCount2012 + totalCount2013 + totalCount2014 + totalCount2015 + raceCount_2016) == 0:
+        time_2016 = (
+                        totalTime2012 + totalTime2013 + totalTime2014 + totalTime2015 + (
+                            totalTime2016 - montreal_2016_time)) / (
+                        totalCount2012 + totalCount2013 + totalCount2014 + totalCount2015 + raceCount_2016
+                    )
+
+    yearTimeList = []
+    yearTimeList.append(int(time_2012))
+    yearTimeList.append(int(time_2013))
+    yearTimeList.append(int(time_2014))
+    yearTimeList.append(int(time_2015))
+    yearTimeList.append(int(time_2016))
+
+    timeAverageList = []
+    timeAverageList.append(int(timeAverage2014))
+    timeAverageList.append(int(timeAverage2015))
+    timeAverageList.append(int(timeAverage2016))
+    timeAverageList.append(yearTimeList)
+    return timeAverageList
+
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# ========================================================================
+#   Function to generate a list of race-counts per year for given runnerId
+# ========================================================================
+def getListOfRaceCountsPerYear(runner):
+    playerId = runner[0]
+
+    runsIn2016 = 0
+    runsIn2015 = 0
+    runsIn2014 = 0
+    runsIn2013 = 0
+    runsIn2012 = 0
+
+    allRunsByPlayer = [run for run in allRunnersEver if int(run[0]) == playerId]
+    for run in allRunsByPlayer:
+        runYear = run[1].split("-")[0]
+
+        if runYear == "2016":
+            runsIn2016 = runsIn2016 + 1
+        elif runYear == "2015":
+            runsIn2015 = runsIn2015 + 1
+        elif runYear == "2014":
+            runsIn2014 = runsIn2014 + 1
+        elif runYear == "2013":
+            runsIn2013 = runsIn2013 + 1
+        elif runYear == "2012":
+            runsIn2012 = runsIn2012 + 1
+
+    previousRunCounts = []
+    previousRunCounts.append(runsIn2016)
+    previousRunCounts.append(runsIn2015)
+    previousRunCounts.append(runsIn2014)
+    previousRunCounts.append(runsIn2013)
+    previousRunCounts.append(runsIn2012)
+    print("* " + str(playerId))
+    return previousRunCounts
+
+# ===========================================================================================
+#   Fecth all the information known related to a specific runner and generate a single list
+# ===========================================================================================
+print("Aggregating all required details into one list.......")
+formattedMontrealRaceWithAllInfo = []
+for index in range(0, len(montrealMarathonData)):
+    deleteEntry = False
+    newDistanceList = []
+    newYearList = []
+    newTimeList = []
+
+    currentEntry = montrealMarathonData[index]
+    yearList = re.sub("[\[\]' ]", "", currentEntry[1]).split(",")
+    distanceList = re.sub("[\[\]' ]", "", currentEntry[2]).split(",")
+    timeList = re.sub("[\[\]' ]", "", currentEntry[3]).split(",")
+    ageCategory = currentEntry[4]
+    noOfAllRaces = currentEntry[7]
+
+    for item in range(0, len(distanceList)):
+        if distanceList[item] == '40':
+            newDistanceList.append(int(distanceList[item]))
+            newYearList.append(int(yearList[item]))
+            # newTimeList.append(timeList[item])
+            newTimeList.append(convertTimeToSeconds(timeList[item]))
+
+    if len(newDistanceList) > 0:
+        newFullEntry = []
+        newFullEntry.append(int(currentEntry[0]))
+        newFullEntry.append(newYearList)
+        newFullEntry.append(newDistanceList)
+        newFullEntry.append(newTimeList)
+        newFullEntry.append(len(newTimeList))
+        newFullEntry.append(int(noOfAllRaces))
+
+        ageCategory = re.sub("[MF]", "", ageCategory)
+        categoryThresholds = ageCategory.split("-")
+
+        if '80' in ageCategory:
+            ageCategory = int(ageCategory.replace("+", ""))
+        elif currentEntry[0] == '768':
+            pass
+        else:
+            ageCategory = (int(categoryThresholds[0]) + int(categoryThresholds[1])) / 2
+
+        averageMarathonFinishTimes = getAverageMarathonRuntime(newFullEntry)
+        noOfRacesPerYearList = getListOfRaceCountsPerYear(newFullEntry)
+
+        newFullEntry.append(averageMarathonFinishTimes)
+        newFullEntry.append(noOfRacesPerYearList)
+        newFullEntry.append(ageCategory)
+        formattedMontrealRaceWithAllInfo.append(newFullEntry)
 
 # ========================================================================
 #       Write all mined data into seperate files for later analysis
 # ========================================================================
-writeToCSV("FinalDataSets/DataSetOn23rd/Y1TrainSet", Y1TrainingSet)
-writeToCSV("FinalDataSets/DataSetOn23rd/Y1TestSet", Y1TestSet)
-writeToCSV("FinalDataSets/DataSetOn23rd/Y2TrainingSet", Y2TrainingSet)
-writeToCSV("FinalDataSets/DataSetOn23rd/Y2TestSet", Y2TestSet)
-writeToCSV("FinalDataSets/IdsNotListed", nonExistantPlayers)
-
-
-# ========================================================================
-#       Indexs of each data-item in the List of player information
-# ========================================================================
-# 0 - PlayerID
-# 1 - Montreal Marathon Years
-# 2 - Marathon Distances
-# 3 - Montreal Marathon RunTimes
-# 4 - Total Number of Montreal Marathons Participated
-# 5 - Total Number All Races in history
-# 6 - ========================
-#       0 - Average marathon time till 2014
-#       1 - Average marathon time till 2015
-#       2 - Average marathon Time till 2016
-#        - +++++++++++++++++++++++++
-#           3 - Average all marathons except 2012
-#           4 - Average all marathons except 2013
-#           5 - Average all marathons except 2014
-#           6 - Average all marathons except 2015
-#           7 - Average all marathons except 2016
-#     +++++++++++++++++++++++++
-# 7 - =========================
-#   0 - No of Races in 2016
-#   1 - No of Races in 2015
-#   2 - No of Races in 2014
-#   3 - No of Races in 2013
-#   4 - No of Races in 2012
-# =========================
-# 8 - Category
+writeToCSV("ArrangedByID/FormattedAllInfo", formattedMontrealRaceWithAllInfo)

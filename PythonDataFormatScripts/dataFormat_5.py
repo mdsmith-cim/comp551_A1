@@ -3,10 +3,11 @@ import re
 
 allTheInfo = []
 idSplitIntoRowsData = []
-nonExistantPlayers = []
-dataOfEveryone = []
+ageGroupAverageTill2014 = []
 
+Y1TrainingSet = []
 Y1TestSet = []
+Y2TrainingSet = []
 Y2TestSet = []
 
 def writeToCSV(csvFileName, dataList):
@@ -16,14 +17,6 @@ def writeToCSV(csvFileName, dataList):
         csvWriter.writerows(dataList)
 
 # ===================================================================================
-#   Load the data set consisting initially generated file from all given data
-# ===================================================================================
-with open('ArrangedByID/editedDataByID.csv', newline='') as marathonData:  # Reads the given csv
-    csvReader = csv.reader(marathonData)
-    for participant in csvReader:
-        idSplitIntoRowsData.append(participant)
-
-# ===================================================================================
 #   Load the data set consisting of  all information regarding every specific runner
 # ===================================================================================
 with open('ArrangedByID/FormattedAllInfo.csv', newline='') as marathonData:  # Reads the given csv
@@ -31,42 +24,26 @@ with open('ArrangedByID/FormattedAllInfo.csv', newline='') as marathonData:  # R
     for participant in csvReader:
         allTheInfo.append(participant)
 
-# ===================================================================================
-#   Load the data set consisting of  all information regarding previous MontrealRaces
-# ===================================================================================
-with open('MontrealMarathon/montrealMarathonFinalData.csv', newline='') as marathonData:  # Reads the given csv
+# ========================================================================
+#     Load all the data initially generated from the given data-set
+# ========================================================================
+with open('ArrangedByID/editedDataByID.csv', newline='') as marathonData:  # Reads the given csv
     csvReader = csv.reader(marathonData)
     for participant in csvReader:
-        dataOfEveryone.append(participant)
-
-# ===================================================================================
-#   Load the data set consisting of Y1 Test set with only thr Montreal Runners
-# ===================================================================================
-with open('FinalDataSets/DataSetOn23rd/Y1TestSet.csv', newline='') as marathonData:  # Reads the given csv
-    csvReader = csv.reader(marathonData)
-    for participant in csvReader:
-        Y1TestSet.append(participant)
-
-# ===================================================================================
-#   Load the data set consisting of Y1 Test set with only thr Montreal Runners
-# ===================================================================================
-with open('FinalDataSets/DataSetOn23rd/Y2TestSet.csv', newline='') as marathonData:  # Reads the given csv
-    csvReader = csv.reader(marathonData)
-    for participant in csvReader:
-        Y2TestSet.append(participant)
-
-ageGroupAverageTill2014 = []
+        idSplitIntoRowsData.append(participant)
 
 # ========================================================================
 #     Function to get the Mean Running time for a given Age-Group
 # ========================================================================
-def getMeanForAgeGroup(ageGroup):
+def getMeanForAgeGroup(runner):
+    ageGroup = runner[8]
+    ageGroupAverage = 0
     alreadyExists = [event for event in ageGroupAverageTill2014 if event[0] == ageGroup]
 
     if len(alreadyExists) > 0:
         ageGroupAverage = alreadyExists[0][1]
-    else:
-        ageGropuList = [event for event in allTheInfo if event[8] == str(ageGroup)]
+    elif not runner[0] == '768':
+        ageGropuList = [event for event in allTheInfo if event[8] == ageGroup]
         totalTime = 0
         itemCount = 0
 
@@ -74,10 +51,16 @@ def getMeanForAgeGroup(ageGroup):
             yearList = re.sub("[\[\] ]", "", person[1]).split(",")
             timeList = re.sub("[\[\] ]", "", person[3]).split(",")
 
-            for item in range(0, len(yearList)):
-                if not '-1' in timeList[item]:
-                    totalTime = totalTime + int(timeList[item])
-                    itemCount = itemCount + 1
+            if '2015' in yearList:
+                for item in range(1, len(yearList)):
+                    if not '-1' in timeList[item]:
+                        totalTime = totalTime + int(timeList[item])
+                        itemCount = itemCount + 1
+            else:
+                for item in range(0, len(yearList)):
+                    if not '-1' in timeList[item]:
+                        totalTime = totalTime + int(timeList[item])
+                        itemCount = itemCount + 1
 
         ageGroupAverage = int(totalTime / itemCount)
         newAgeGroupTime = []
@@ -86,83 +69,136 @@ def getMeanForAgeGroup(ageGroup):
         ageGroupAverageTill2014.append(newAgeGroupTime)
     return ageGroupAverage
 
-# ========================================================================
-#     Function to get the Average Marathon runtime for a given playerId
-# ========================================================================
-def getAverageMarathonRuntime(playerId):
-    averageRuntimeForRunner = 0
-    totalTime = 0
-    totalRaces = 0
 
-    runnerInfo = [info for info in idSplitIntoRowsData if info[0] == playerId]
-    for item in range(0, len(runnerInfo)):
-        raceType = runnerInfo[item][3].upper().replace(" ", "")
-        raceTime = runnerInfo[item][4]
-        raceTimeSplit = raceTime.split(":")
+# =======================================================================
+#     From the loaded information generate the Training set for Y1 & Y2
+#          Consists of data about Montreal Participants until 2014
+# =======================================================================
+for runner in allTheInfo:
+    newY1Info = []
+    newY2Info = []
+    didTheyAttend = -1
 
-        if ('MARATHON' in raceType and 'HALF' not in raceType and 'DEMI' not in raceType and not '00' in raceTimeSplit[0]):
-            if not '-1' in  raceTimeSplit:
-                raceTimeSeconds = (int(raceTimeSplit[0]) * 3600) + (int(raceTimeSplit[1]) * 60) + int(raceTimeSplit[2])
-                totalTime = totalTime + raceTimeSeconds
-                totalRaces = totalRaces + 1
+    playerId = runner[0]
+    noOfMontrealMarathons = int(runner[4])
+    noOfAllRaces = int(runner[5])
+    averageRuntimeInMarathons = int(re.sub("[\[\] ]","", runner[6]).split(",")[0])
+    category = runner[8]
 
-    if not totalRaces == 0:
-        averageRuntimeForRunner = (totalTime / totalRaces)
-    return averageRuntimeForRunner
 
-Y1TestSet_Extended = []
-Y2TestSet_Extended = []
+    if '2015' in runner[1]:
+        didTheyAttend = 1
+        noOfMontrealMarathons = noOfMontrealMarathons - 1
+        noOfAllRaces = noOfAllRaces - 1
 
-# ===============================================================================
-#    Traverse through all the IDs and add the missing IDs
-# (the ones of runners who never ran a Marathon) to the Final Test Sets (Y1 & Y2)
-# ===============================================================================
-for count in range(0, 8711):
-    runnerInfo = [info for info in Y1TestSet if int(info[0]) == count]
-    runnerInfo2 = [info for info in Y2TestSet if int(info[0]) == count]
-
-    if len(runnerInfo) == 1:
-        Y1TestSet_Extended.append(runnerInfo[0])
-        Y2TestSet_Extended.append(runnerInfo2[0])
-        pass
+        if noOfMontrealMarathons == 0 and averageRuntimeInMarathons == 0:
+            averageRuntimeInMarathons = getMeanForAgeGroup(runner)
     else:
-        newY1Info = []
-        newY2Info = []
+        didTheyAttend = 0
 
-        playerId = str(count)
-        noOfMontrealMarathons = str(0)
-        runnerInfo = [info for info in dataOfEveryone if int(info[0]) == count]
-        noOfAllRaces = runnerInfo[0][7]
-        category = runnerInfo[0][4]
+    if averageRuntimeInMarathons == -1:
+        averageRuntimeInMarathons = getMeanForAgeGroup(runner)
 
-        ageCategory = re.sub("[MF]", "", category)
-        categoryThresholds = ageCategory.split("-")
+    finish_2015Time = 0
+    if '2015' in runner[1]:
+        finish_2015Time = int(re.sub("[\[\] ]", "", runner[3]).split(",")[0])
 
-        if '80' in ageCategory:
-            ageCategory = int(ageCategory.replace("+", ""))
-        else:
-            ageCategory = (int(categoryThresholds[0]) + int(categoryThresholds[1])) / 2
+    newY1Info.append(playerId)
+    newY1Info.append(noOfMontrealMarathons)
+    newY1Info.append(noOfAllRaces)
+    # newY1Info.append(averageRuntimeInMarathons)
+    newY1Info.append(category)
+    newY1Info.append(didTheyAttend)
 
-        averageTimesInMarathon = getAverageMarathonRuntime(playerId)
-        if averageTimesInMarathon == 0:
-            averageTimesInMarathon = getMeanForAgeGroup(ageCategory)
-        newY1Info.append(playerId)
-        newY1Info.append(noOfMontrealMarathons)
-        newY1Info.append(noOfAllRaces)
-        newY1Info.append(str(ageCategory))
+    newY2Info.append(playerId)
+    newY2Info.append(averageRuntimeInMarathons)
+    newY2Info.append(noOfAllRaces)
+    newY2Info.append(category)
+    newY2Info.append(finish_2015Time)
 
-        newY2Info.append(playerId)
-        newY2Info.append(averageTimesInMarathon)         #average
-        newY2Info.append(noOfAllRaces)
-        newY2Info.append(str(ageCategory))
+    Y1TrainingSet.append(newY1Info)
+    if not newY2Info[4] == 0 and not newY2Info[4] == -1:
+        Y2TrainingSet.append(newY2Info)
 
-        Y1TestSet_Extended.append(newY1Info)
-        Y2TestSet_Extended.append(newY2Info)
+# =======================================================================
+#     From the loaded information generate the Testing set for Y1 & Y2
+#          Consists of data about Montreal Participants until 2015
+# =======================================================================
+for runner in allTheInfo:
+    newY1Info = []
+    newY2Info = []
 
-# ==========================================================================
-#    Store the final Test Sets upon which the 2016 event is to be predicted
-# ===========================================================================
-writeToCSV("FinalDataSets/DataSetOn23rd/Y1TestSet_Extended", Y1TestSet_Extended)
-writeToCSV("FinalDataSets/DataSetOn23rd/Y2TestSet_Extended", Y2TestSet_Extended)
+    playerId = runner[0]
+    noOfMontrealMarathons = int(runner[4])
+    noOfAllRaces = int(runner[5])
+    averageRuntimeInMarathons = int(re.sub("[\[\] ]", "", runner[6]).split(",")[1])
+    category = runner[8]
+
+    if averageRuntimeInMarathons == -1:
+        averageRuntimeInMarathons = getMeanForAgeGroup(runner)
+
+    newY1Info.append(playerId)
+    newY1Info.append(noOfMontrealMarathons)
+    newY1Info.append(noOfAllRaces)
+    newY1Info.append(category)
+
+    newY2Info.append(playerId)
+    newY2Info.append(averageRuntimeInMarathons)
+    newY2Info.append(noOfAllRaces)
+    newY2Info.append(category)
+
+    Y1TestSet.append(newY1Info)
+    Y2TestSet.append(newY2Info)
+
+# ============================================================================================
+#       Get a list of all other players who hadn't participated in the Montreal Marathon ever
+#             and hence left out in the above formulated two sets
+# ============================================================================================
+nonExistantPlayers = []
+for runner in idSplitIntoRowsData:
+    newY2Info = []
+    runnerId = runner[0]
+    runnerInfo = [event for event in allTheInfo if event[0] == runnerId]
+    if len(runnerInfo) == 0:
+        if not [runnerId] in nonExistantPlayers:
+            nonExistantPlayers.append([runnerId])
 
 
+# ========================================================================
+#       Write all mined data into seperate files for later analysis
+# ========================================================================
+writeToCSV("FinalDataSets/DataSetOn23rd/Y1TrainSet", Y1TrainingSet)
+writeToCSV("FinalDataSets/DataSetOn23rd/Y1TestSet", Y1TestSet)
+writeToCSV("FinalDataSets/DataSetOn23rd/Y2TrainingSet", Y2TrainingSet)
+writeToCSV("FinalDataSets/DataSetOn23rd/Y2TestSet", Y2TestSet)
+writeToCSV("FinalDataSets/IdsNotListed", nonExistantPlayers)
+
+
+# ========================================================================
+#       Indexs of each data-item in the List of player information
+# ========================================================================
+# 0 - PlayerID
+# 1 - Montreal Marathon Years
+# 2 - Marathon Distances
+# 3 - Montreal Marathon RunTimes
+# 4 - Total Number of Montreal Marathons Participated
+# 5 - Total Number All Races in history
+# 6 - ========================
+#       0 - Average marathon time till 2014
+#       1 - Average marathon time till 2015
+#       2 - Average marathon Time till 2016
+#        - +++++++++++++++++++++++++
+#           3 - Average all marathons except 2012
+#           4 - Average all marathons except 2013
+#           5 - Average all marathons except 2014
+#           6 - Average all marathons except 2015
+#           7 - Average all marathons except 2016
+#     +++++++++++++++++++++++++
+# 7 - =========================
+#   0 - No of Races in 2016
+#   1 - No of Races in 2015
+#   2 - No of Races in 2014
+#   3 - No of Races in 2013
+#   4 - No of Races in 2012
+# =========================
+# 8 - Category
